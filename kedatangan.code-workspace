@@ -1,0 +1,123 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "terminal.integrated.fontFamily": "RobotoMono Nerd Font",
+        //terminal profile
+        "[php]": {
+            "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
+            "suggest.basic": false,
+            "validate.run": "onType"
+        },
+        "[typescript]": {
+            "editor.defaultFormatter": "vscode.typescript-language-features"
+        },
+        "[typescriptreact]": {
+            "editor.defaultFormatter": "vscode.typescript-language-features"
+        },
+        "[json]": {
+            "editor.defaultFormatter": "vscode.json-language-features"
+        },
+        "[css]": {
+            "editor.defaultFormatter": "vscode.css-language-features"
+        },
+        // <!-- phpcs plugin -->
+        "phpcs.executablePath": "./vendor/bin/phpcs",
+        "phpcs.ignorePatterns": [
+            "*/storage/",
+            "*/vendor/*",
+            "*/node_modules/*",
+            "*/database/*",
+            "*/resources/*"
+        ],
+        "workbench.colorTheme": "Default Dark Modern",
+        "intelephense.environment.phpVersion": "8.2.0",
+        "phpstan.binPath": "/vendor/bin/phpstan.bat", // Replace with the actual path to the PHPStan executable
+        "editor.formatOnSave": true, // Auto-format your code on save
+        "intelephense.diagnostics.run": "onType", // Run Intelephense diagnostics while typing
+        "php-cs-fixer.executablePath": "/vendor/bin/php-cs-fixer",
+        "php-cs-fixer.executablePathWindows": "/vendor/bin/php-cs-fixer.bat", //eg: php-cs-fixer.bat
+        "php-cs-fixer.onsave": false,
+        "php-cs-fixer.rules": "@PSR12",
+        "php-cs-fixer.config": ".php-cs-fixer.php;.php-cs-fixer.dist.php;.php_cs;.php_cs.dist",
+        "php-cs-fixer.allowRisky": false,
+        "php-cs-fixer.pathMode": "override",
+        "php-cs-fixer.ignorePHPVersion": false,
+        "php-cs-fixer.exclude": [],
+        "php-cs-fixer.autoFixByBracket": true,
+        "php-cs-fixer.autoFixBySemicolon": false,
+        "php-cs-fixer.formatHtml": false,
+        "php-cs-fixer.documentFormattingProvider": true,
+        "phpcs.standard": "./phpcs.xml",
+        "phpstan.timeout": 30000,
+        "terminal.integrated.automationProfile.windows": {
+            "path": "C:\\laragon\\bin\\git\\bin\\bash.exe"
+        },
+        "terminal.integrated.defaultProfile.windows": "Git Bash",
+        "terminal.integrated.env.windows": {
+            "args": "",
+            "PATH": "/c/Users/Dell/AppData/Local/Yarn/config/global/node_modules/.bin:/c/Users/Dell/AppData/Roaming/npm:/c/Users/Dell/AppData/Roaming/Composer/vendor/bin:/c/laragon/bin/laragon/utils:/c/laragon/bin/mysql/mysql-8.0.30-winx64/bin:/c/laragon/bin/php/php-8.2.8-Win32-vs16-x64:/c/laragon/bin/composer:/c/laragon/bin/apache/httpd-2.4.54-win64-VS16/bin:/c/laragon/bin/redis/redis-x64-5.0.14.1:/c/laragon/bin/nodejs/node-v18:/c/laragon/bin/postgresql/postgresql-14.5-1/bin:/c/laragon/bin/python/python-3.10:/c/laragon/bin/python/python-3.10/Scripts:/c/laragon/bin/nginx/nginx-1.22.0:/c/laragon/bin/notepad++:/c/laragon/bin/telnet:/c/laragon/bin/ngrok:/bin:/cmd:/usr/bin:/mingw64/bin:/c/laragon/bin:/c/laragon/usr/bin:/c/laragon/bin/cmder/vendor/conemu-maximus5/ConEmu/Scripts:/c/laragon/bin/cmder/vendor/conemu-maximus5:/c/laragon/bin/cmder/vendor/conemu-maximus5/ConEmu:/c/Program Files (x86)/Microsoft SDKs/Azure/CLI2/wbin:/c/WINDOWS/system32:/c/WINDOWS:/c/WINDOWS/System32/Wbem:/c/WINDOWS/System32/WindowsPowerShell/v1.0:/c/WINDOWS/System32/OpenSSH:/c/Program Files/dotnet:/c/Program Files/starship/bin:/c/laragon/bin:/c/laragon/bin/apache/httpd-2.4.54-win64-VS16/bin:/c/laragon/bin/composer:/bin:/cmd:/mingw64/bin:/usr/bin:/c/laragon/bin/laragon/utils:/c/laragon/bin/mysql/mysql-8.0.30-winx64/bin:/c/laragon/bin/nginx/nginx-1.22.0:/c/laragon/bin/ngrok:/c/laragon/bin/nodejs/node-v18:/c/laragon/bin/php/php-7.4.33-Win32-vc15-x64:/c/laragon/bin/python/python-3.10:/c/laragon/bin/python/python-3.10/Scripts:/c/laragon/bin/redis/redis-x64-5.0.14.1:/c/laragon/bin/telnet:/c/laragon/usr/bin:/c/Users/Dell/AppData/Local/Yarn/config/global/node_modules/.bin:/c/Users/Dell/AppData/Roaming/Composer/vendor/bin:/c/Users/Dell/AppData/Roaming/npm:/c/Program Files/GitHub CLI:/c/stripe:/c/Program Files/Git/cmd:/c/ProgramData/chocolatey/bin:/c/Program Files (x86)/gnupg/bin:/c/Program Files/Docker/Docker/resources/bin:/c/laragon/bin:/c/laragon/bin/apache/httpd-2.4.54-win64-VS16/bin:/c/laragon/bin/composer:/bin:/cmd:/mingw64/bin:/usr/bin:/c/laragon/bin/laragon/utils:/c/laragon/bin/mysql/mysql-8.0.30-winx64/bin:/c/laragon/bin/nginx/nginx-1.22.0:/c/laragon/bin/ngrok:/c/laragon/bin/nodejs/node-v18:/c/laragon/bin/notepad++:/c/laragon/bin/php/php-7.4.33-Win32-vc15-x64:/c/laragon/bin/postgresql/postgresql-14.5-1/bin:/c/laragon/bin/python/python-3.10:/c/laragon/bin/python/python-3.10/Scripts:/c/laragon/bin/redis/redis-x64-5.0.14.1:/c/laragon/bin/telnet:/c/laragon/usr/bin:/c/Users/Dell/AppData/Local/Yarn/config/global/node_modules/.bin:/c/Users/Dell/AppData/Roaming/Composer/vendor/bin:/c/Users/Dell/AppData/Roaming/npm:/c/Users/Dell/AppData/Local/Microsoft/WindowsApps:/c/Users/Dell/AppData/Local/Programs/Microsoft VS Code/bin:/c/Users/Dell/AppData/Local/Programs/Azure Dev CLI:/c/laragon/bin/cmder/vendor/bin:/c/laragon/bin/cmder"
+        }
+        //terminal end
+    },
+    //tasks for laravel app
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "artisan serve",
+                "type": "shell",
+                "command": "php artisan serve",
+                "problemMatcher": [],
+                "group": {
+                    "kind": "build",
+                    "isDefault": true
+                }
+            },
+            {
+                "label": "artisan migrate",
+                "type": "shell",
+                "command": "php artisan migrate",
+                "problemMatcher": [],
+                "group": {
+                    "kind": "build",
+                    "isDefault": true
+                }
+            },
+            {
+                "label": "artisan db:seed",
+                "type": "shell",
+                "command": "php artisan db:seed",
+                "problemMatcher": [],
+                "group": {
+                    "kind": "build",
+                    "isDefault": true
+                }
+            },
+            // {
+            //     "label": "phpunit",
+            //     "type": "shell",
+            //     "command": "vendor/bin/phpunit",
+            //     "problemMatcher": [],
+            //     "group": {
+            //         "kind": "test",
+            //         "isDefault": true
+            //     }
+            // }
+            //testing using pest
+            {
+                "label": "pest",
+                "type": "shell",
+                "command": "vendor/bin/pest",
+                "problemMatcher": [],
+                "group": {
+                    "kind": "test",
+                    "isDefault": true
+                }
+            }
+        ]
+    }
+}
