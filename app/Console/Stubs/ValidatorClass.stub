@@ -1,0 +1,10 @@
+<?php
+
+namespace DummyNamespace;
+
+use Illuminate\Support\Facades\Validator;
+
+class DummyClass extends Validator
+{
+    //
+}
