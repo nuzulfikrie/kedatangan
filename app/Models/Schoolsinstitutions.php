@@ -9,23 +9,33 @@ class Schoolsinstitutions extends Model
 {
     use HasFactory;
 
-
     protected $table = 'schools_institutions';
 
     protected $primaryKey = 'id';
 
     protected $attributes = [];
 
-    
+
     public function createRecords(array $dataFromRequest)
     {
+        //1 save school first
         $school = new Schoolsinstitutions();
         $school->name = $dataFromRequest['name'];
         $school->address = $dataFromRequest['address'];
         $school->phone_number = $dataFromRequest['phone_number'];
         $school->school_email = $dataFromRequest['school_email'];
         $school->school_website = $dataFromRequest['school_website'];
-        return $school->saveOrFail();
+
+
+        $school->saveOrFail();
+
+        //create school admin id
+        $schoolAdmin = new Schoolsadmin();
+        $schoolAdmin->school_id = $school->id;
+        $schoolAdmin->school_admin_id = $dataFromRequest['school_admin_id'];
+        $schoolAdmin->saveOrFail();
+
+        return $school;
     }
 
     public function updateRecords(array $dataFromRequest)

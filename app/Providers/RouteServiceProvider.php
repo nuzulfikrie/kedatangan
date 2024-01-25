@@ -35,6 +35,12 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
+
+            // if field email_verified_at is null, redirect to email verification
+
+
+            //redirect based on role after login
+
         });
     }
 }
