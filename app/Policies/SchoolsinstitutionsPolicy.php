@@ -8,6 +8,24 @@ use Illuminate\Auth\Access\Response;
 
 class SchoolsinstitutionsPolicy
 {
+
+    //dashboard
+    public function dashboard(User $user): bool
+    {
+        // 1 - check if user role is school admin or admin
+        // 2 - if user role is school admin, check if user id is the same as school admin id
+        // 3 - if user role is admin, return true
+
+        if ($user->role === 'school_admin') {
+            return $user->id === $user->school_admin_id
+                ? true
+                : false;
+        } elseif ($user->role === 'admin') {
+            return true;
+        }
+
+        return false;
+    }
     /**
      * Determine whether the user can view any models.
      */
@@ -33,30 +51,30 @@ class SchoolsinstitutionsPolicy
      */
     public function index(User $user): bool
     {
-        // 1 - check if user role is school admin or admin
-        // 2 - if user role is school admin, check if user id is the same as school admin id
-        // 3 - if user role is admin, return true
-        if ($user->role === 'school_admin') {
-            return $user->id === $user->school_admin_id
-                ? true
-                : false;
-        } elseif ($user->role === 'admin') {
-            return true;
-        }
 
-        return false;
+        // if (in_array($user->role, ['admin', 'school_admin'], true)) {
+        //     return true;
+        // } else {
+        //     return false;
+        // }
+
+        dump('--- index ---');
+
+        dd($user->role);
+        return in_array($user->role, ['admin', 'school_admin'], true)
+            ? true
+            : false;
     }
 
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Schoolsinstitutions $schoolsinstitutions): bool
+    public function view(User $user): bool
     {
         //1 - check if user role is school admin or admin
         //2 - if user role is school admin, check if user id is the same as school admin id
         // the id is in the url
-
         //3 - if user role is admin, return true
         if ($user->role === 'school_admin') {
             return $user->id === $user->school_admin_id
@@ -71,17 +89,17 @@ class SchoolsinstitutionsPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user): Response
     {
+
         // policy for creating a school
         // only admin or school_admin can create a school
         // if user role is admin, return true
-
         if (in_array($user->role, ['admin', 'school_admin'])) {
-            return true;
+            return Response::allow();
         }
 
-        return false;
+        return Response::deny('You are not authorized to create a school');
     }
 
     /**

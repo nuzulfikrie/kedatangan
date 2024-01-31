@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Schoolsinstitutions;
+use App\Models\Schoolsadmin;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -20,39 +21,76 @@ class SchoolsController extends Controller
         $this->authorizeResource(Schoolsinstitutions::class, 'edit');
         $this->authorizeResource(Schoolsinstitutions::class, 'delete');
     }
+
+    public function dashboard()
+    {
+        $this->authorize('dashboard', Schoolsinstitutions::class);
+        return view('school_admin.dashboard');
+    }
     public function index(int $schoolAdminId)
     {
-        $this->authorize('index', Schoolsinstitutions::class);
+        try {
 
-        $schools = Schoolsinstitutions::all()->where('school_admin_id', $schoolAdminId);
-        return view('school_admin.schools.index', compact('schools'));
+            $schoolAdmins = Schoolsadmin::get()->where('user_id', $schoolAdminId);
+
+            $hasSchool = $schoolAdmins->isNotEmpty();
+
+            if ($hasSchool) {
+                $schoolIds = $schoolAdmins->pluck('school_id');
+                $schools = Schoolsinstitutions::get()->whereIn('id', $schoolIds);
+            } else {
+                $schools = null;
+            }
+
+
+            return view('school_admin.schools.index', compact('schools', 'hasSchool'));
+        } catch (Exception $e) {
+            return redirect()->route('dashboard')->with(
+                'error ' . $e->getMessage()
+
+            );
+        }
     }
+
 
     public function create()
     {
         //add policy
         $this->authorize('create', Schoolsinstitutions::class);
-        return redirect()->route('dashboard')->with('success', 'Your success message here');
+        return view('school_admin.schools.create');
     }
 
     public function store(Request $request)
     {
-        $this->authorize('store', Schoolsinstitutions::class);
+        $this->authorize('create', Schoolsinstitutions::class); // Use 'create' instead of 'store'
         try {
 
             $school = new Schoolsinstitutions();
-            $school = $school->createRecords($request->all());
 
+            $school = $school->createRecords($request->all());
             if ($school) {
                 //flash success message
 
-                return redirect()->route('school_admin.schools.index', $request->school_admin_id)->with('success', 'School created successfully');
+                return redirect()
+                    ->route(
+                        'school_admin.schools.index',
+                        $request->school_admin_id
+                    )
+                    ->with('success', 'School created successfully');
             }
 
             return redirect()->route('school_admin.schools.index', $request->school_admin_id);
         } catch (Exception $e) {
             // flash error message
-            return redirect()->back()->with('error', 'Something went wrong, please try again later.');
+            return redirect()->back()->with(
+                'error',
+                'Something went wrong, please try again later. Error '
+                    . $e->getMessage()
+                    . ' on '
+                    . $e->getFile()
+                    . ' at '
+                    . $e->getLine()
+            );
         }
     }
 

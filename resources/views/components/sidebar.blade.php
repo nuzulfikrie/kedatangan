@@ -70,6 +70,24 @@ $loggedIn = Auth::check();
               <li>
                 <a href="https://flowbite-admin-dashboard.vercel.app/authentication/profile-lock/" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">Profile lock</a>
               </li>
+              @if (auth()->id())
+              <li>
+                  <form method="POST" action="{{ route('logout') }}" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
+                      @csrf
+                      <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" class="flex items-center">
+                          <i class="fas fa-sign-out-alt"></i>
+                          Log Out
+                      </a>
+                  </form>
+              </li>
+          @else
+              <li>
+                  <a href="{{ route('login') }}" class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
+                      <i class="fas fa-sign-in-alt"></i>
+                      Login
+                  </a>
+              </li>
+          @endif
             </ul>
           </li>
 

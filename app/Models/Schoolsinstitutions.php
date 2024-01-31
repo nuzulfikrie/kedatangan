@@ -32,7 +32,7 @@ class Schoolsinstitutions extends Model
         //create school admin id
         $schoolAdmin = new Schoolsadmin();
         $schoolAdmin->school_id = $school->id;
-        $schoolAdmin->school_admin_id = $dataFromRequest['school_admin_id'];
+        $schoolAdmin->user_id = $dataFromRequest['school_admin_id'];
         $schoolAdmin->saveOrFail();
 
         return $school;

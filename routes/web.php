@@ -3,6 +3,8 @@
 use App\Http\Controllers\DashboardController;
 use App\Models\SchoolsInstitutions;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LoginController;
+use App\Models\Schoolsadmin;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,9 +18,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
-
+    return view('dashboard');
+})->middleware(['auth'])->name('dashboard');
 
 ## for jetstream
 Route::get('/dashboard', function () {
@@ -48,6 +49,16 @@ Route::get(
     }
 )->name('about');
 
+//page cheatsheet for tailwind css
+Route::get(
+    '/cheatsheet',
+    [
+        App\Http\Controllers\CheatsheetController::class,
+        'index',
+
+    ]
+);
+
 // admin prefix route
 Route::prefix('admin')->group(function () {
     Route::get('/dashboard', function () {
@@ -66,11 +77,30 @@ Route::prefix('school_admin')->group(function () {
     })->name('school_admin.dashboard');
     //schools
     Route::get(
-        '/schools',
-        function (SchoolsInstitutions $schoolsInstitutions) {
-            return view('school_admin.schools.index');
+        '/schools/index/{id}',
+        function (int $schoolAdminId) {
+            try {
+                $schoolAdmins = Schoolsadmin::get()->where('user_id', $schoolAdminId);
+
+                $hasSchool = $schoolAdmins->isNotEmpty();
+
+                if ($hasSchool) {
+                    $schoolIds = $schoolAdmins->pluck('school_id');
+                    $schools = Schoolsinstitutions::get()->whereIn('id', $schoolIds);
+                } else {
+                    $schools = null;
+                }
+
+
+                return view('school_admin.schools.index', compact('schools', 'hasSchool'));
+            } catch (Exception $e) {
+                return redirect()->route('dashboard')->with(
+                    'error ' . $e->getMessage()
+
+                );
+            }
         }
-    )->name('school_admin.schools.index')->middleware('can:index,viewAny');
+    )->name('school_admin.schools.index');
 
     Route::get(
         '/schools/create',
@@ -86,7 +116,9 @@ Route::prefix('school_admin')->group(function () {
             App\Http\Controllers\SchoolAdmin\SchoolsController::class,
             'store',
         ]
-    )->name('school_admin.schools.store')->middleware('can:store,App\Models\Schoolsinstitutions');
+    )->name('school_admin.schools.store')
+        // can - 'method in policy' , 'model class'
+        ->middleware('can:create,App\Models\Schoolsinstitutions');
 
     Route::get(
         '/schools/edit/{id}',

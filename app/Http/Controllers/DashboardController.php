@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use LDAP\Result;
 
 class DashboardController extends Controller
 {
@@ -34,7 +35,7 @@ class DashboardController extends Controller
                 'schools' => $schools
             ];
             //set template use
-
+            //redirect to school admin dashboard
             return view('school_admin.dashboard', $data)->with('success', 'you are viewing the school admin dashboard');
         } else {
             return view('home');

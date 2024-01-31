@@ -1,10 +1,11 @@
 <?php
+
       //current controller
       $controller = Route::currentRouteAction();
       //get controller name
       $controllerName = explode('@', $controller)[0];
       //get action name
-
+        $userId = Auth::user()->id;
       $userName = Auth::user()->name;
       $textMain = 'This site built for teachers and students.';
 
@@ -133,8 +134,7 @@
           </div>
           <div>
             <?php
-            $link = route('school_admin.schools.index');
-            $linkWithId = $link . '/' . Auth::user()->id;
+            $linkWithId = route('school_admin.schools.index', $userId);
             ?>
             <div class="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" class="w-6 h-6 stroke-gray-400">
@@ -162,3 +162,25 @@
       <?php endif; ?>
       @endcan
 </x-app-layout>
+<script>
+    export default {
+        data () {
+            return {
+                show: true,
+
+            }
+        },
+
+        watch: {
+            '$page.props.flash': {
+                handler () {
+                    this.show = true
+                    setTimeout(() => {
+                        this.show = false
+                    }, 5000)
+                },
+                deep: true
+            },
+        },
+    }
+    </script>
