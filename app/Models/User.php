@@ -59,4 +59,19 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    public function schools()
+    {
+        if ($this->role == 'school_admin') {
+
+            return $this->hasMany(Schoolsadmin::class, 'school_admin_id', 'id');
+        }
+    }
+
+    public function students()
+    {
+        if ($this->role == 'school_admin') {
+            return $this->hasManyThrough(Childs::class, Schoolsadmin::class, 'school_admin_id', 'school_id', 'id', 'school_id');
+        }
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SchoolAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Schoolsinstitutions;
 use App\Models\Schoolsadmin;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -25,26 +26,45 @@ class SchoolsController extends Controller
     public function dashboard()
     {
         $this->authorize('dashboard', Schoolsinstitutions::class);
-        return view('school_admin.dashboard');
+
+        $userId = auth()->user()->id;
+        $user = User::find($userId);
+
+        $schoolsAdmin = SchoolsAdmin::where('school_admin_id', '=', $userId)->firstOrFail();
+        $hasSchool = SchoolsAdmin::isNotEmpty();
+
+        return view('schools_admin.dashboard');
     }
     public function index(int $schoolAdminId)
     {
         try {
+            $userId = auth()->user()->id;
+            $user = User::find($userId);
 
-            $schoolAdmins = Schoolsadmin::get()->where('user_id', $schoolAdminId);
+            $schoolsAdmin = SchoolsAdmin::where('school_admin_id', '=', $userId)->firstOrFail();
 
-            $hasSchool = $schoolAdmins->isNotEmpty();
+            $this->authorize('view', $user, $schoolsAdmin);
+
+            $hasSchool = SchoolsAdmin::isNotEmpty();
+            dump('--- hasSchool ---');
+            dump($hasSchool);
+
 
             if ($hasSchool) {
-                $schoolIds = $schoolAdmins->pluck('school_id');
-                $schools = Schoolsinstitutions::get()->whereIn('id', $schoolIds);
+                $schoolIds = $schoolsAdmin->pluck('school_id');
+
+                dump('--- schoolIds ---');
+                dump($schoolIds);
+                $schools = Schoolsinstitutions::whereIn('id', $schoolIds)->get();
             } else {
                 $schools = null;
             }
 
 
-            return view('school_admin.schools.index', compact('schools', 'hasSchool'));
+            return view('schools_admin.schools.index', compact('schools', 'hasSchool'));
         } catch (Exception $e) {
+            dd($e);
+            $this->session()->flash('error', $e->getMessage());
             return redirect()->route('dashboard')->with(
                 'error ' . $e->getMessage()
 
@@ -57,7 +77,7 @@ class SchoolsController extends Controller
     {
         //add policy
         $this->authorize('create', Schoolsinstitutions::class);
-        return view('school_admin.schools.create');
+        return view('schools_admin.schools.create');
     }
 
     public function store(Request $request)
@@ -73,13 +93,13 @@ class SchoolsController extends Controller
 
                 return redirect()
                     ->route(
-                        'school_admin.schools.index',
+                        'schools_admin.schools.index',
                         $request->school_admin_id
                     )
                     ->with('success', 'School created successfully');
             }
 
-            return redirect()->route('school_admin.schools.index', $request->school_admin_id);
+            return redirect()->route('schools_admin.schools.index', $request->school_admin_id);
         } catch (Exception $e) {
             // flash error message
             return redirect()->back()->with(
@@ -99,7 +119,26 @@ class SchoolsController extends Controller
     {
         try {
             $school = Schoolsinstitutions::findOrFail($id);
-            return view('school_admin.schools.edit', compact('school'));
+            return view('schools_admin.schools.edit', compact('school'));
+        } catch (Exception $e) {
+
+            return redirect()->back()->with(
+                'error',
+                'Error ' . $e->getMessage()
+                    . ' on '
+                    . $e->getFile()
+                    . ' at '
+                    . $e->getLine()
+                    . 'Something went wrong, please try again later.'
+            );
+        }
+    }
+
+    public function show(int $id)
+    {
+        try {
+            $school = Schoolsinstitutions::findOrFail($id);
+            return view('schools_admin.schools.show', compact('school'));
         } catch (Exception $e) {
 
             return redirect()->back()->with(
@@ -124,7 +163,7 @@ class SchoolsController extends Controller
             $school->school_email = $request->school_email;
             $school->school_website = $request->school_website;
             $school->saveOrFail();
-            return redirect()->route('school_admin.schools.index', $request->school_admin_id);
+            return redirect()->route('schools_admin.schools.index', $request->school_admin_id);
         } catch (Exception $e) {
 
             return redirect()->back()->with(
@@ -139,12 +178,22 @@ class SchoolsController extends Controller
         }
     }
 
-    public function destroy(int $id)
+    public function delete(int $id)
     {
         try {
-            $school = Schoolsinstitutions::find($id);
+
+            //get current user id 
+            $userId = auth()->user()->id;
+            $user = User::find($userId);
+
+
+            $school = Schoolsinstitutions::where('id', '=', $id)->firstOrFail();
+            $schoolsAdmin = SchoolsAdmin::where('id', '=', $school->school_admin_id)->firstOrFail();
+
+            $this->authorize('delete', $user, $schoolsAdmin); // Use 'delete' instead of 'destroy'
+
             $school->deleteOrFail();
-            return redirect()->route('school_admin.schools.index', $school->school_admin_id);
+            return redirect()->route('schools_admin.schools.index', $school->school_admin_id);
         } catch (Exception $e) {
 
             return redirect()->back()->with(

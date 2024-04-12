@@ -17,4 +17,10 @@ class Childs extends Model
         return $this->hasMany(ChildParents::class);
         //how to access this - $child->childParents->parent_id
     }
+
+    public function school()
+    {
+        return $this->belongsTo(SchoolsInstitutions::class, 'school_id', 'id');
+        //how to access this - $child->school->name
+    }
 }

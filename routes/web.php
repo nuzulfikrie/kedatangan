@@ -71,36 +71,40 @@ Route::prefix('admin')->group(function () {
 });
 
 // shool admin prefix route
-Route::prefix('school_admin')->group(function () {
+Route::prefix('schools_admin')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
-    })->name('school_admin.dashboard');
+    })->name('schools_admin.dashboard');
     //schools
     Route::get(
         '/schools/index/{id}',
         function (int $schoolAdminId) {
             try {
-                $schoolAdmins = Schoolsadmin::get()->where('user_id', $schoolAdminId);
+                $schoolAdmins = Schoolsadmin::get()->where('school_admin_id', $schoolAdminId);
 
                 $hasSchool = $schoolAdmins->isNotEmpty();
 
                 if ($hasSchool) {
                     $schoolIds = $schoolAdmins->pluck('school_id');
-                    $schools = Schoolsinstitutions::get()->whereIn('id', $schoolIds);
+                    $schools = Schoolsinstitutions::get()
+                        ->whereIn('id', $schoolIds);
                 } else {
                     $schools = null;
                 }
 
 
-                return view('school_admin.schools.index', compact('schools', 'hasSchool'));
+                return view('schools_admin.schools.index', compact('schools', 'hasSchool'));
             } catch (Exception $e) {
+                //flash message
+
+
                 return redirect()->route('dashboard')->with(
                     'error ' . $e->getMessage()
 
                 );
             }
         }
-    )->name('school_admin.schools.index');
+    )->name('schools_admin.schools.index');
 
     Route::get(
         '/schools/create',
@@ -108,7 +112,7 @@ Route::prefix('school_admin')->group(function () {
             App\Http\Controllers\SchoolAdmin\SchoolsController::class,
             'create',
         ]
-    )->name('school_admin.schools.create')->middleware('can:create,App\Models\Schoolsinstitutions');
+    )->name('schools_admin.schools.create')->middleware('can:create,App\Models\Schoolsinstitutions');
 
     Route::post(
         '/schools/store',
@@ -116,7 +120,7 @@ Route::prefix('school_admin')->group(function () {
             App\Http\Controllers\SchoolAdmin\SchoolsController::class,
             'store',
         ]
-    )->name('school_admin.schools.store')
+    )->name('schools_admin.schools.store')
         // can - 'method in policy' , 'model class'
         ->middleware('can:create,App\Models\Schoolsinstitutions');
 
@@ -126,7 +130,23 @@ Route::prefix('school_admin')->group(function () {
             App\Http\Controllers\SchoolAdmin\SchoolsController::class,
             'edit',
         ]
-    )->name('school_admin.schools.edit');
+    )->name('schools_admin.schools.edit');
+
+    Route::post(
+        '/schools/delete/{id}',
+        [
+            App\Http\Controllers\SchoolAdmin\SchoolsController::class,
+            'delete',
+        ]
+    )->name('schools_admin.schools.delete');
+
+    Route::get(
+        '/schools/show/{id}',
+        [
+            App\Http\Controllers\SchoolAdmin\SchoolsController::class,
+            'show',
+        ]
+    )->name('schools_admin.schools.show');
 
     Route::post(
         '/schools/update',
@@ -134,7 +154,7 @@ Route::prefix('school_admin')->group(function () {
             App\Http\Controllers\SchoolAdmin\SchoolsController::class,
             'update',
         ]
-    )->name('school_admin.schools.update');
+    )->name('schools_admin.schools.update');
 
     Route::delete(
         '/schools/delete/{id}',
@@ -142,7 +162,7 @@ Route::prefix('school_admin')->group(function () {
             App\Http\Controllers\SchoolAdmin\SchoolsController::class,
             'delete',
         ]
-    )->name('school_admin.schools.delete');
+    )->name('schools_admin.schools.delete');
 });
 
 

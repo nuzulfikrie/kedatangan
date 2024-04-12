@@ -36,9 +36,9 @@ class DashboardController extends Controller
             ];
             //set template use
             //redirect to school admin dashboard
-            return view('school_admin.dashboard', $data)->with('success', 'you are viewing the school admin dashboard');
+            return view('schools_admin.dashboard', $data)->with('success', 'you are viewing the school admin dashboard');
         } else {
-            return view('home');
+            return view('admin.dashboard');
         }
     }
 }

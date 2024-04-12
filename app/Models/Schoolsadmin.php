@@ -4,20 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Schoolsadmin extends Model
 {
     use HasFactory;
 
+    use SoftDeletes;
     protected $table = 'schools_admin';
 
     protected $primaryKey = 'id';
+
+
 
     protected $attributes = [];
 
     public function schools()
     {
-        return $this->hasMany(Schoolsinstitutions::class, 'school_admin_id');
+        return $this->belongsTo(Schoolsinstitutions::class, 'school_id', 'id');
     }
 
     public function createRecords(array $dataFromRequest)
@@ -40,5 +44,11 @@ class Schoolsadmin extends Model
     {
         $schoolAdmin = Schoolsadmin::find($id);
         return $schoolAdmin->delete();
+    }
+
+    public function restoreRecords(int $id)
+    {
+        $schoolAdmin = Schoolsadmin::withTrashed()->find($id);
+        return $schoolAdmin->restore();
     }
 }

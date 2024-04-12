@@ -15,6 +15,27 @@ class Schoolsinstitutions extends Model
 
     protected $attributes = [];
 
+    public function schoolsAdmin()
+    {
+        return $this->hasMany('schools_admin', 'school_id', 'id');
+    }
+
+
+    public function getAllAdmins()
+    {
+        return $this->schoolsAdmin;
+    }
+
+    public function getAllRecords()
+    {
+        return Schoolsinstitutions::all();
+    }
+
+    public function getRecordById(int $id)
+    {
+        return Schoolsinstitutions::find($id);
+    }
+
 
     public function createRecords(array $dataFromRequest)
     {
