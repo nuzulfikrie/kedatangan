@@ -9,6 +9,18 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class TeachersFactory extends Factory
 {
+    public static string $name;
+    public static int $school_id;
+    public static int $user_id;
+    public static string $picture_path;
+
+    public function __construct(array $data)
+    {
+        $this->name = $data['name'];
+        $this->school_id = $data['school_id'];
+        $this->user_id = $data['user_id'];
+        $this->picture_path = $data['picture_path'];
+    }
     /**
      * Define the model's default state.
      *

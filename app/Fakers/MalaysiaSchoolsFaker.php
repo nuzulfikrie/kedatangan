@@ -5,7 +5,7 @@ namespace App\Fakers;
 use Faker\Generator;
 
 
-class MalaysianSchoolsFaker
+class MalaysiaSchoolsFaker
 {
   /**
    * Generate a random Malaysian school name.

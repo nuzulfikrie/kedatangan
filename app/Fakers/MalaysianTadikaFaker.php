@@ -15,7 +15,7 @@ class MalaysianTadikaFaker
   /**
    * Generate a random Malaysian tadika or kindergarten name.
    *
-   * @param Faker\Generator $faker
+   * @param \Faker\Generator $faker
    * @return string
    */
   public static function generateTadikaName(Generator $faker): string
@@ -45,7 +45,7 @@ class MalaysianTadikaFaker
   /**
    * Generate a random Malaysian tadika or kindergarten address.
    *
-   * @param Faker\Generator $faker
+   * @param \Faker\Generator $faker
    * @return string
    */
   public static function generateTadikaAddress(Generator $faker): string
@@ -79,7 +79,7 @@ class MalaysianTadikaFaker
   /**
    * Generate a random Malaysian tadika or kindergarten phone number.
    *
-   * @param Faker\Generator $faker
+   * @param \Faker\Generator $faker
    * @return string
    */
   public static function generateTadikaPhoneNumber(Generator $faker): string
@@ -117,13 +117,19 @@ class MalaysianTadikaFaker
 
     //use tadika name//
     $tadikaName = str_replace(' ', '', $tadikaName);
+    $tadikaName = strtolower($tadikaName);
 
-    return strtolower($tadikaName) . '.' . Arr::random($validTld);
+    $tadikaName = strtolower($tadikaName) . '.' . Arr::random($validTld);
+
+    //remove all element invalid in a url 
+    $tadikaName = preg_replace('/[^a-zA-Z0-9\-\.]/', '', $tadikaName);
+    //return tadika name
+    return $tadikaName;
   }
   /**
    * Generate a random Malaysian tadika or kindergarten email.
    *
-   * @param Faker\Generator $faker
+   * @param \Faker\Generator $faker
    * @return string
    */
   public static function generateTadikaEmail(Generator $faker, string $name): string
@@ -144,7 +150,11 @@ class MalaysianTadikaFaker
     $emailProvider = $faker->randomElement($emailProviders);
     $emailName = 'admin' . $name;
 
-    return strtolower($emailName) . '@' . $emailProvider;
+    $emailName = strtolower($emailName) . '@' . $emailProvider;
+
+    //remove all element invalid in an email string
+    $emailName = preg_replace('/[^a-zA-Z0-9\.\-_]/', '', $emailName);
+    return $emailName;
   }
 
   protected static function pluckAndCapitalize($str)

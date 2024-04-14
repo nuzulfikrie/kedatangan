@@ -4,10 +4,13 @@ namespace Database\Factories;
 
 use App\Fakers\MalaysianFatherFaker;
 use App\Fakers\MalaysianMotherFaker;
+use App\Fakers\MalaysianTeacherFaker;
 use App\Models\ChildParents;
 use App\Models\Childs;
 use App\Models\Parents;
 use App\Models\Team;
+use App\Models\Teachers;
+use App\Models\Schoolsadmin;
 use App\Models\User;
 use Faker\Factory as Faker;
 use Faker\Generator;
@@ -168,6 +171,7 @@ class UserFactory extends Factory
             'current_team_id' => null,
             //flag is admin
             'is_admin' => false,
+            'role' => 'parent'
         ];
     }
     public static function userIsMalayMother()
@@ -190,6 +194,7 @@ class UserFactory extends Factory
             'current_team_id' => null,
             //flag is admin
             'is_admin' => false,
+            'role' => 'parent'
         ];
     }
 
@@ -300,6 +305,7 @@ class UserFactory extends Factory
             'current_team_id' => null,
             //flag is admin
             'is_admin' => false,
+            'role' => 'parent'
         ];
     }
     //create a chinese mother
@@ -323,8 +329,11 @@ class UserFactory extends Factory
             'current_team_id' => null,
             //flag is admin
             'is_admin' => false,
+            'role' => 'parent'
         ];
     }
+
+
     public static function userIsIndianFather()
     {
         $fakerGenerator = new Generator();
@@ -345,6 +354,114 @@ class UserFactory extends Factory
             'current_team_id' => null,
             //flag is admin
             'is_admin' => false,
+            'role' => 'parent'
         ];
+    }
+    //create a chinese mother
+    public static function userIsIndianMother()
+    {
+        $fakerGenerator = new Generator();
+        $fakerGenerator->addProvider(new Person($fakerGenerator));
+        $faker = new MalaysianMotherFaker('Indian');
+        $name = $faker->generateMotherName($fakerGenerator);
+        return [
+            'name' => $name,
+            'email' => MalaysianMotherFaker::generateMotherEmail($name),
+            'email_verified_at' => now(),
+            //password is hashed
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+
+            'two_factor_secret' => null,
+            'two_factor_recovery_codes' => null,
+            'remember_token' => Str::random(10),
+            'profile_photo_path' => MalaysianMotherFaker::generatePhotoPath(),
+            'current_team_id' => null,
+            //flag is admin
+            'is_admin' => false,
+            'role' => 'parent'
+        ];
+    }
+
+    public static function seedATeacher(string $race, string $gender, bool $is_admin = false)
+    {
+
+        $teacherData = self::userIsATeacher($race, $gender, $is_admin);
+        $userteacher = User::create($teacherData);
+
+        //save teacher in teachers table
+        $teacher = Teachers::create([
+            'user_id' => $userteacher->id,
+            //school id pick any from 1 to 100
+            'school_id' => rand(1, 100),
+            'teacher_name' => $userteacher->name,
+            'phone_number' => MalaysianTeacherFaker::generateTeacherPhoneNumber(),
+            'email' => $userteacher->email,
+            'picture_path' => $userteacher->profile_photo_path
+        ]);
+
+        if ($is_admin == true) {
+            /**
+             * CREATE TABLE `schools_admin` (
+             * `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+             *  `school_admin_id` bigint(20) unsigned NOT NULL, `school_id` bigint(20) unsigned NOT NULL, `created_at` timestamp NULL DEFAULT NULL, `updated_at` timestamp NULL DEFAULT NULL, PRIMARY KEY (`id`), KEY `schools_admin_user_id` (`school_admin_id`), KEY `schools_admin_school_id` (`school_id`), CONSTRAINT `schools_admin_school_id` FOREIGN KEY (`school_id`) REFERENCES `schools_institutions` (`id`), CONSTRAINT `schools_admin_user_id` FOREIGN KEY (`school_admin_id`) REFERENCES `users` (`id`)
+             * ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci
+             */
+
+            SchoolsAdmin::create([
+                'school_admin_id' => $userteacher->id,
+                'school_id' => $userteacher->school_id,
+                'created_at' => now(),
+                'updated_at' => now()
+
+            ]);
+        }
+    }
+
+    //use possible
+    public static function userIsATeacher(string $race, string $gender, bool $is_admin = false)
+    {
+        if ($is_admin == false) {
+            $fakerGenerator = new Generator();
+            $fakerGenerator->addProvider(new Person($fakerGenerator));
+            $faker = new MalaysianTeacherFaker($race, $gender);
+            $name = $faker->generateName($fakerGenerator);
+            return [
+                'name' => $name,
+                'email' => $faker->generateEmail($name),
+                'email_verified_at' => now(),
+                //password is hashed
+                'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+
+                'two_factor_secret' => null,
+                'two_factor_recovery_codes' => null,
+                'remember_token' => Str::random(10),
+                'profile_photo_path' => $faker->generatePhotoPath(),
+                'current_team_id' => null,
+                //flag is admin
+                'is_admin' => $is_admin,
+                'role' => 'teacher'
+            ];
+        } else {
+            $fakerGenerator = new Generator();
+            $fakerGenerator->addProvider(new Person($fakerGenerator));
+            $faker = new MalaysianTeacherFaker($race, $gender);
+            $name = $faker->generateName($fakerGenerator);
+            return [
+                'name' => $name,
+                'email' => $faker->generateEmail($name),
+                'email_verified_at' => now(),
+                //password is hashed
+                'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+
+                'two_factor_secret' => null,
+                'two_factor_recovery_codes' => null,
+                'remember_token' => Str::random(10),
+                'profile_photo_path' => $faker->generatePhotoPath(),
+                'current_team_id' => null,
+                //flag is admin
+                'is_admin' => $is_admin,
+                'role' => 'teacher'
+            ];
+        }
     }
 }

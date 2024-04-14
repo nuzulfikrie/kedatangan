@@ -7,7 +7,7 @@ namespace App\Validators;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-class TeachersValidators extends Validator
+class TeachersValidator extends Validator
 {
   /**
    * Validate the input.

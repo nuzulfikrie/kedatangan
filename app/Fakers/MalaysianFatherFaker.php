@@ -3,11 +3,11 @@
 namespace App\Fakers;
 
 use Faker\Generator;
-use Illuminate\Support\Arr;
+use App\Fakers\Traits\UtilityTrait;
 
 class MalaysianFatherFaker
 {
-
+  use UtilityTrait;
   protected static string $race;
 
   protected array $possibleRace = ['Malay', 'Chinese', 'Indian'];
@@ -31,7 +31,7 @@ class MalaysianFatherFaker
   /**
    * Generate a random Malaysian father name.
    *
-   * @param Faker\Generator $faker
+   * @param \Faker\Generator $faker
    * @return string
    */
   public static function generateFatherName(Generator $faker): string
@@ -58,48 +58,34 @@ class MalaysianFatherFaker
   /**
    * Generate a random Malaysian father phone number.
    *
-   * @param Faker\Generator $faker
+   * @param \Faker\Generator $faker
    * @return string
    */
   public static function generateFatherPhoneNumber(): string
   {
-    $faker = \Faker\Factory::create('ms_MY');
-    $phoneNumber = $faker->mobileNumber();
-    return $phoneNumber;
+    return self::generatePhoneNumber();
   }
 
   /**
    * Generate a random Malaysian father email.
    *
-   * @param Faker\Generator $faker
+   * @param \Faker\Generator $faker
    * @param string $fatherName
    * @return string
    */
   public static function generateFatherEmail(string $fatherName): string
   {
-    //use fathername
-    //remove spaces, remove special characters lowercase all
-    $faker = \Faker\Factory::create(
-      'ms_MY'
-    );
-
-    $fatherName = str_replace(' ', '', $fatherName);
-    $fatherName = preg_replace('/[^A-Za-z0-9\-]/', '', $fatherName);
-    $fatherName = strtolower($fatherName);
-    //combine with random email domain
-    $emailDomain = $faker->randomElement(['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com']);
-    $email = $fatherName . '@' . $emailDomain;
+    $email = self::generateEmail($fatherName);
     return $email;
   }
 
   public static function generateAddress(Generator $faker)
   {
-    return $faker->address();
+    return self::generateAddress($faker);
   }
 
   public static function generatePhotoPath()
   {
-    $faker = \Faker\Factory::create();
-    return $faker->imageUrl();
+    return self::generatePhotoPath();
   }
 }
