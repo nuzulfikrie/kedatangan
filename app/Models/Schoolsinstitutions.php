@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Schoolsinstitutions extends Model
 {
@@ -72,8 +74,20 @@ class Schoolsinstitutions extends Model
 
     public function deleteRecords(int $id)
     {
-        $school = Schoolsinstitutions::find($id);
-        return $school->delete();
+        try {
+            //code...
+            DB::beginTransaction();
+
+            //delete childs
+            $this->childs()->delete();
+
+            $school = Schoolsinstitutions::find($id);
+            $school->delete();
+
+            DB::commit();
+        } catch (Exception $e) {
+            //throw $th;
+        }
     }
 
     public function teachers()

@@ -37,4 +37,30 @@ class EmergencyContacts extends Model
     {
         return $this->belongsTo(Parents::class, 'parent_id', 'id');
     }
+
+    public static function createRecord(array $data)
+    {
+
+        return self::create($data);
+    }
+
+    public static function updateRecord(int $id, array $data)
+    {
+
+        $record = self::find($id);
+        return self::update($data);
+    }
+
+    public static function deleteRecord(int $id)
+    {
+        $record = self::find($id);
+        return $record->delete();
+    }
+
+    //utility function
+    public static function wipe()
+    {
+        self::truncate();
+        return true;
+    }
 }
