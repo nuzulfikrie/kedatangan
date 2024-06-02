@@ -30,7 +30,7 @@ class TeachersFactory extends Factory
     {
 
         //set faker locale to Malaysia
-        $this->faker->locale('ms_MY');
+        $this->faker->locale();
         return [
             //
 
