@@ -16,6 +16,7 @@ use Faker\Factory as Faker;
 use Faker\Generator;
 use Faker\Provider\ms_MY\Person;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Jetstream\Features;
 
@@ -27,6 +28,7 @@ class UserFactory extends Factory
     protected array $possibleRace = [
         'Malay', 'Indian', 'Chinese', 'Others'
     ];
+
     /**
      * Define the model's default state.
      *
@@ -36,13 +38,12 @@ class UserFactory extends Factory
     {
         $faker = Faker::create('ms_MY'); // Set the locale to Malaysia
 
-
         return [
             'name' => $faker->name(),
             'email' => $faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => Hash::make('password'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -85,8 +86,6 @@ class UserFactory extends Factory
                 ->when(is_callable($callback), $callback),
             'ownedTeams'
         );
-        //this to create a user with a personal team
-        //User::factory()->withPersonalTeam()->create();
     }
 
     /**
@@ -103,10 +102,6 @@ class UserFactory extends Factory
                 'role' => 'parent',
             ];
         });
-
-        //to create a parent, call this in seeder
-        //``` php
-        //User::factory()->roleIsParent()->create();
     }
 
     /**
@@ -136,6 +131,7 @@ class UserFactory extends Factory
             ];
         });
     }
+
     //role is school_admin
     public static function roleIsSchoolAdmin(): static
     {
@@ -151,7 +147,6 @@ class UserFactory extends Factory
     //create a malay father
     public static function userIsMalayFather()
     {
-
         $fakerGenerator = new Generator();
         $fakerGenerator->addProvider(new Person($fakerGenerator));
 
@@ -162,7 +157,7 @@ class UserFactory extends Factory
             'email' => MalaysianFatherFaker::generateFatherEmail($name),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => Hash::make('password'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -174,6 +169,7 @@ class UserFactory extends Factory
             'role' => 'parent'
         ];
     }
+
     public static function userIsMalayMother()
     {
         $fakerGenerator = new Generator();
@@ -185,7 +181,7 @@ class UserFactory extends Factory
             'email' => MalaysianMotherFaker::generateMotherEmail($name),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => Hash::make('password'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -238,7 +234,6 @@ class UserFactory extends Factory
             'phone_number' => MalaysianFatherFaker::generateFatherPhoneNumber($fakerGenerator),
             'email' => $father->email,
             'picture_path' => $father->profile_photo_path
-
         ]);
 
         //2 generate a mother
@@ -259,8 +254,8 @@ class UserFactory extends Factory
             'phone_number' => MalaysianMotherFaker::generateMotherPhoneNumber(),
             'email' => $mother->email,
             'picture_path' => $mother->profile_photo_path
-
         ]);
+
         //3 generate childs
         $childs = UserFactory::withChilds(2, $race, $father->name);
 
@@ -296,7 +291,7 @@ class UserFactory extends Factory
             'email' => MalaysianFatherFaker::generateFatherEmail($name),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => Hash::make('password'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -308,6 +303,7 @@ class UserFactory extends Factory
             'role' => 'parent'
         ];
     }
+
     //create a chinese mother
     public static function userIsChineseMother()
     {
@@ -320,7 +316,7 @@ class UserFactory extends Factory
             'email' => MalaysianMotherFaker::generateMotherEmail($name),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => Hash::make('password'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -333,7 +329,6 @@ class UserFactory extends Factory
         ];
     }
 
-
     public static function userIsIndianFather()
     {
         $fakerGenerator = new Generator();
@@ -345,7 +340,7 @@ class UserFactory extends Factory
             'email' => MalaysianFatherFaker::generateFatherEmail($name),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => Hash::make('password'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -357,7 +352,8 @@ class UserFactory extends Factory
             'role' => 'parent'
         ];
     }
-    //create a chinese mother
+
+    //create an indian mother
     public static function userIsIndianMother()
     {
         $fakerGenerator = new Generator();
@@ -369,7 +365,7 @@ class UserFactory extends Factory
             'email' => MalaysianMotherFaker::generateMotherEmail($name),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => Hash::make('password'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -384,7 +380,6 @@ class UserFactory extends Factory
 
     public static function seedATeacher(string $race, string $gender, bool $is_admin = false)
     {
-
         $teacherData = self::userIsATeacher($race, $gender, $is_admin);
         $userteacher = User::create($teacherData);
 
@@ -400,68 +395,36 @@ class UserFactory extends Factory
         ]);
 
         if ($is_admin == true) {
-            /**
-             * CREATE TABLE `schools_admin` (
-             * `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-             *  `school_admin_id` bigint(20) unsigned NOT NULL, `school_id` bigint(20) unsigned NOT NULL, `created_at` timestamp NULL DEFAULT NULL, `updated_at` timestamp NULL DEFAULT NULL, PRIMARY KEY (`id`), KEY `schools_admin_user_id` (`school_admin_id`), KEY `schools_admin_school_id` (`school_id`), CONSTRAINT `schools_admin_school_id` FOREIGN KEY (`school_id`) REFERENCES `schools_institutions` (`id`), CONSTRAINT `schools_admin_user_id` FOREIGN KEY (`school_admin_id`) REFERENCES `users` (`id`)
-             * ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci
-             */
-
             SchoolsAdmin::create([
                 'school_admin_id' => $userteacher->id,
                 'school_id' => $userteacher->school_id,
                 'created_at' => now(),
                 'updated_at' => now()
-
             ]);
         }
     }
 
-    //use possible
     public static function userIsATeacher(string $race, string $gender, bool $is_admin = false)
     {
-        if ($is_admin == false) {
-            $fakerGenerator = new Generator();
-            $fakerGenerator->addProvider(new Person($fakerGenerator));
-            $faker = new MalaysianTeacherFaker($race, $gender);
-            $name = $faker->generateName($fakerGenerator);
-            return [
-                'name' => $name,
-                'email' => $faker->generateEmail($name),
-                'email_verified_at' => now(),
-                //password is hashed
-                'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+        $fakerGenerator = new Generator();
+        $fakerGenerator->addProvider(new Person($fakerGenerator));
+        $faker = new MalaysianTeacherFaker($race, $gender);
+        $name = $faker->generateName($fakerGenerator);
+        return [
+            'name' => $name,
+            'email' => $faker->generateEmail($name),
+            'email_verified_at' => now(),
+            //password is hashed
+            'password' => Hash::make('123456'), // password
 
-                'two_factor_secret' => null,
-                'two_factor_recovery_codes' => null,
-                'remember_token' => Str::random(10),
-                'profile_photo_path' => $faker->generatePhotoPath(),
-                'current_team_id' => null,
-                //flag is admin
-                'is_admin' => $is_admin,
-                'role' => 'teacher'
-            ];
-        } else {
-            $fakerGenerator = new Generator();
-            $fakerGenerator->addProvider(new Person($fakerGenerator));
-            $faker = new MalaysianTeacherFaker($race, $gender);
-            $name = $faker->generateName($fakerGenerator);
-            return [
-                'name' => $name,
-                'email' => $faker->generateEmail($name),
-                'email_verified_at' => now(),
-                //password is hashed
-                'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-
-                'two_factor_secret' => null,
-                'two_factor_recovery_codes' => null,
-                'remember_token' => Str::random(10),
-                'profile_photo_path' => $faker->generatePhotoPath(),
-                'current_team_id' => null,
-                //flag is admin
-                'is_admin' => $is_admin,
-                'role' => 'teacher'
-            ];
-        }
+            'two_factor_secret' => null,
+            'two_factor_recovery_codes' => null,
+            'remember_token' => Str::random(10),
+            'profile_photo_path' => $faker->generatePhotoPath(),
+            'current_team_id' => null,
+            //flag is admin
+            'is_admin' => $is_admin,
+            'role' => 'teacher'
+        ];
     }
 }
