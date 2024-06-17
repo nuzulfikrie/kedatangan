@@ -14,7 +14,6 @@ class Classes extends Model
 
     protected $fillable = [
         'school_id',
-        'child_id',
         'class_name',
         'created_at',
         'updated_at'
@@ -25,9 +24,9 @@ class Classes extends Model
         $this->belongsTo(Schoolsinstitutions::class, 'school_id', 'id');
     }
 
-    public function student()
+    public function child()
     {
-        $this->hasMany(Childs::class, 'child_id', 'id');
+        $this->hasManyThrough(PivotClassChild::class, 'class_id', 'id', 'id');
     }
 
     public function admins()

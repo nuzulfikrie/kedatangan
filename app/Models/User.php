@@ -71,7 +71,7 @@ class User extends Authenticatable
     public function students()
     {
         if ($this->role == 'school_admin') {
-            return $this->hasManyThrough(Childs::class, Schoolsadmin::class, 'school_admin_id', 'school_id', 'id', 'school_id');
+            return $this->hasManyThrough(PivotClassChild::class, Schoolsadmin::class, 'school_admin_id', 'school_id', 'id', 'school_id');
         }
     }
 }

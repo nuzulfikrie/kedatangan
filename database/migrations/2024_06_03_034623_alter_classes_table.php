@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::table('classes', function (Blueprint $table) {
             if (Schema::hasColumn('classes', 'child_id')) {
-                $table->dropForeign(['child_id']);
+                Schema::disableForeignKeyConstraints();
+                $table->dropForeign('classes_child_id');
                 $table->dropColumn('child_id');
+                Schema::enableForeignKeyConstraints();
             }
         });
     }

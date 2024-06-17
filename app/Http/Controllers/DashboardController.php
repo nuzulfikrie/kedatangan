@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Classes;
+use App\Models\PivotClassChild;
 use Illuminate\Http\Request;
 use LDAP\Result;
 
@@ -21,17 +23,17 @@ class DashboardController extends Controller
 
 
             $hasSchools = auth()->user()->schools ? true : false;
-            $schools = auth()->user()->schools;
+            $schools = auth()->user()->schools->pluck('id');
 
             if ($hasSchools) {
-                $students = $schools->students ? $schools->students : null;
+                $classes = Classes::whereIn('school_id', $schools)->get();
             } else {
-                $students = null;
+                $classes = null;
             }
 
             $data = [
                 'hasSchools' => $hasSchools,
-                'students' => $students,
+                'classes' => $classes,
                 'schools' => $schools
             ];
             //set template use

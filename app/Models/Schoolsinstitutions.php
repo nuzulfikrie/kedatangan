@@ -5,11 +5,15 @@ namespace App\Models;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Schoolsinstitutions extends Model
 {
     use HasFactory;
+
+    use SoftDeletes;
 
     protected $table = 'schools_institutions';
 
@@ -41,24 +45,32 @@ class Schoolsinstitutions extends Model
 
     public function createRecords(array $dataFromRequest)
     {
-        //1 save school first
-        $school = new Schoolsinstitutions();
-        $school->name = $dataFromRequest['name'];
-        $school->address = $dataFromRequest['address'];
-        $school->phone_number = $dataFromRequest['phone_number'];
-        $school->school_email = $dataFromRequest['school_email'];
-        $school->school_website = $dataFromRequest['school_website'];
+        try {
+            //1 save school first
+            DB::beginTransaction();
+            $school = new Schoolsinstitutions();
+            $school->name = $dataFromRequest['name'];
+            $school->address = $dataFromRequest['address'];
+            $school->phone_number = $dataFromRequest['phone_number'];
+            $school->school_email = $dataFromRequest['school_email'];
+            $school->school_website = $dataFromRequest['school_website'];
 
 
-        $school->saveOrFail();
+            $school->saveOrFail();
 
-        //create school admin id
-        $schoolAdmin = new Schoolsadmin();
-        $schoolAdmin->school_id = $school->id;
-        $schoolAdmin->user_id = $dataFromRequest['school_admin_id'];
-        $schoolAdmin->saveOrFail();
+            //create school admin id
+            $schoolAdmin = new Schoolsadmin();
+            $schoolAdmin->school_id = $school->id;
+            $schoolAdmin->school_admin_id = $dataFromRequest['school_admin_id'];
+            $schoolAdmin->saveOrFail();
+            DB::commit();
+            return $school;
+        } catch (Exception $e) {
+            //throw $th;
+            DB::rollBack();
 
-        return $school;
+            Log::error('Error ' . $e->getMessage() . ' in ' . $e->getFile()  . ' at line ' . $e->getLine());
+        }
     }
 
     public function updateRecords(array $dataFromRequest)
@@ -97,6 +109,6 @@ class Schoolsinstitutions extends Model
 
     public function childs()
     {
-        return $this->hasMany(Childs::class, 'child_id');
+        return $this->hasMany(PivotClassChild::class, 'child_id');
     }
 }

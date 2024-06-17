@@ -46,9 +46,7 @@ Route::prefix('admin')->group(function () {
         return view('dashboard');
     })->name('admin.dashboard');
 
-    Route::get('/schools', function () {
-        return view('admin.schools_institutions.index');
-    })->name('admin.schools_institutions.index');
+    Route::get('/schools/{user}', [App\Http\Controllers\SchoolAdmin\SchoolsController::class, 'index'])->name('admin.schools_institutions.index');
 });
 
 // School admin prefix routes
@@ -57,18 +55,8 @@ Route::prefix('schools_admin')->group(function () {
         return view('dashboard');
     })->name('schools_admin.dashboard');
 
-    Route::get('/schools/index/{id}', function (int $schoolAdminId) {
-        try {
-            $schoolAdmins = Schoolsadmin::where('school_admin_id', $schoolAdminId)->get();
-
-            $hasSchool = $schoolAdmins->isNotEmpty();
-            $schools = $hasSchool ? Schoolsinstitutions::whereIn('id', $schoolAdmins->pluck('school_id'))->get() : null;
-
-            return view('schools_admin.schools.index', compact('schools', 'hasSchool'));
-        } catch (\Exception $e) {
-            return redirect()->route('dashboard')->with('error', $e->getMessage());
-        }
-    })->name('schools_admin.schools.index');
+    Route::get('/schools/index/{id?}', [App\Http\Controllers\SchoolAdmin\SchoolsController::class, 'index'])
+        ->name('schools_admin.schools.index');
 
     Route::get('/schools/create', [App\Http\Controllers\SchoolAdmin\SchoolsController::class, 'create'])
         ->name('schools_admin.schools.create')
@@ -87,9 +75,11 @@ Route::prefix('schools_admin')->group(function () {
     Route::get('/schools/show/{id}', [App\Http\Controllers\SchoolAdmin\SchoolsController::class, 'show'])
         ->name('schools_admin.schools.show');
 
+    Route::get('/schools/edit/{id}', [App\Http\Controllers\SchoolAdmin\SchoolsController::class, 'edit'])
+        ->name('schools_admin.schools.edit');
     Route::post('/schools/update', [App\Http\Controllers\SchoolAdmin\SchoolsController::class, 'update'])
         ->name('schools_admin.schools.update');
 
-    Route::delete('/schools/delete/{id}', [App\Http\Controllers\SchoolAdmin\SchoolsController::class, 'delete'])
+    Route::post('/schools/delete', [App\Http\Controllers\SchoolAdmin\SchoolsController::class, 'delete'])
         ->name('schools_admin.schools.delete');
 });

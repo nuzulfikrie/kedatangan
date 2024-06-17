@@ -1,8 +1,9 @@
 
 <x-app-layout>
-  schools_admin/schools/index.blade.php
-
-  //resources\views\components\school-admins-table-list.blade.php
-
-  <x-school-admins-table-list :schools="$schools" />
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Dashboard') }}
+        </h2>
+    </x-slot>
+    <x-school-admins-table-list :schools="$schools" />
 </x-app-layout>

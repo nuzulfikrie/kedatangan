@@ -23,7 +23,7 @@ class User extends Seeder
      */
     public function run(): void
     {
-        // seed a malay family 100 times 
+        // seed a malay family 100 times
         for ($i = 0; $i < 100; $i++) {
             $this->seedAMalayFamily();
         }
@@ -67,10 +67,10 @@ class User extends Seeder
         // use callback, get father race,
         // generate mother use father race
         // generate child  use father race
-        User::factory()
-            ->count(1)
-            ->roleIsParent()
-            ->create();
+        // User::factory()
+        //     ->count(1)
+        //     ->roleIsParent()
+        //     ->create();
     }
 
     protected function seedAMalayFamily()

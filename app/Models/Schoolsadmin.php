@@ -10,7 +10,6 @@ class Schoolsadmin extends Model
 {
     use HasFactory;
 
-    use SoftDeletes;
     protected $table = 'schools_admin';
 
     protected $primaryKey = 'id';
@@ -50,5 +49,12 @@ class Schoolsadmin extends Model
     {
         $schoolAdmin = Schoolsadmin::withTrashed()->find($id);
         return $schoolAdmin->restore();
+    }
+
+    public static function isNotEmpty(int $adminId)
+    {
+        $data = self::where('school_admin_id', '=', $adminId)->get()->toArray();
+
+        return !empty($data);
     }
 }
