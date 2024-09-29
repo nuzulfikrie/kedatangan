@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\Validator;
 
 class PivotClassTeacher extends Model
 {
@@ -43,9 +44,8 @@ class PivotClassTeacher extends Model
 
         //record must exists in classes table,
         //record must exists in teachers table
-
         // Validate data
-        $validator = Validator::make($data, [
+        $validator = \Illuminate\Support\Facades\Validator::make($data, [
             'teacher_id' => 'required|exists:teachers,id',
             'class_id' => 'required|exists:classes,id',
         ]);
@@ -71,7 +71,7 @@ class PivotClassTeacher extends Model
         $record = self::findOrFail($id);
 
         // Validate data
-        $validator = Validator::make($data, [
+        $validator = \Illuminate\Support\Facades\Validator::make($data, [
             'teacher_id' => 'required|exists:teachers,id',
             'class_id' => 'required|exists:classes,id',
         ]);

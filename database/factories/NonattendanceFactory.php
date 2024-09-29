@@ -2,19 +2,28 @@
 
 namespace Database\Factories;
 
-use App\Models\Childs;
 use App\Models\Attendance;
+use App\Models\Childs;
 use App\Models\Nonattendance;
+use App\Models\Unknowns;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class UnknownsFactory extends Factory
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Nonattendance>
+ */
+class NonattendanceFactory extends Factory
 {
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         $child = Childs::inRandomOrder()->first() ?? Childs::factory()->create();
         $date = $this->faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d');
 
-        // Ensure no attendance or nonattendance record exists for this child and date
+        // Ensure no attendance, nonattendance, or unknown record exists for this child and date
         while ($this->recordExists($child->id, $date)) {
             $date = $this->faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d');
         }
@@ -22,6 +31,7 @@ class UnknownsFactory extends Factory
         return [
             'child_id' => $child->id,
             'date' => $date,
+            'reason' => $this->faker->sentence,
             'created_at' => now(),
             'updated_at' => now(),
         ];
@@ -33,6 +43,9 @@ class UnknownsFactory extends Factory
             ->where('date', $date)
             ->exists()
             || Nonattendance::where('child_id', $childId)
+            ->where('date', $date)
+            ->exists()
+            || Unknowns::where('child_id', $childId)
             ->where('date', $date)
             ->exists();
     }
@@ -60,7 +73,7 @@ class UnknownsFactory extends Factory
         return $this->state(function (array $attributes) use ($child) {
             $date = $this->faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d');
 
-            // Ensure no attendance or nonattendance record exists for this child and date
+            // Ensure no attendance, nonattendance, or unknown record exists for this child and date
             while ($this->recordExists($child->id, $date)) {
                 $date = $this->faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d');
             }

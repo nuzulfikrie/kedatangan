@@ -7,84 +7,64 @@ use Database\Factories\UserFactory;
 use Database\Factories\TeachersFactory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class User extends Seeder
 {
-    protected array $possibleRace = [
-        'Malay', 'Indian', 'Chinese', 'Others'
-    ];
-
-
+    protected array $possibleRace = ['Malay', 'Indian', 'Chinese', 'Others'];
     protected array $possibleGender = ['Male', 'Female'];
-
     protected array $possibleBoolState = [true, false];
-    /**
-     * Run the database seeds.
-     */
+
     public function run(): void
     {
-        // seed a malay family 100 times
-        for ($i = 0; $i < 100; $i++) {
-            $this->seedAMalayFamily();
+        $familyCount = env('SEED_FAMILY_COUNT', 100);
+        $teacherCount = env('SEED_TEACHER_COUNT', 500);
+
+        $this->command->info('Starting to seed users...');
+
+        $this->seedFamilies('Malay', $familyCount);
+        $this->seedFamilies('Chinese', $familyCount);
+        $this->seedFamilies('Indian', $familyCount);
+
+        $this->seedTeachers($teacherCount);
+
+        $this->command->info('User seeding completed!');
+    }
+
+    protected function seedFamilies(string $race, int $count)
+    {
+        $this->command->info("Seeding $count $race families...");
+        for ($i = 0; $i < $count; $i++) {
+            DB::transaction(function () use ($race) {
+                UserFactory::generateAFamily($race);
+            });
+            if (($i + 1) % 10 == 0) {
+                $this->command->info("Seeded " . ($i + 1) . " $race families");
+            }
         }
+    }
 
-        // seed a chinese family 100 times
-        for ($i = 0; $i < 100; $i++) {
-            $this->seedAChineseFamily();
+    protected function seedTeachers(int $count)
+    {
+        $this->command->info("Seeding $count teachers...");
+        for ($i = 0; $i < $count; $i++) {
+            try {
+                $race = $this->possibleRace[array_rand($this->possibleRace)];
+                $gender = $this->possibleGender[array_rand($this->possibleGender)];
+                $isAdmin = ($i === 0) ? true : $this->possibleBoolState[array_rand($this->possibleBoolState)];
+
+                UserFactory::seedATeacher($race, $gender, $isAdmin);
+
+                if ($i === 0) {
+                    $this->command->info("Seeded first teacher as admin");
+                }
+
+                if (($i + 1) % 50 == 0) {
+                    $this->command->info("Seeded " . ($i + 1) . " teachers");
+                }
+            } catch (\Exception $e) {
+                $this->command->error("Error seeding teacher: " . $e->getMessage());
+            }
         }
-
-        // seed an indian family 100 times
-        for ($i = 0; $i < 100; $i++) {
-            $this->seedAnIndianFamily();
-        }
-
-        // seed a teacher 500 times
-        for ($i = 0; $i < 500; $i++) {
-            $this->seedTeacher();
-        }
-    }
-
-    //teacher seeder
-    protected function seedTeacher()
-    {
-        //use possible race by picking one value from the array
-        $race = $this->possibleRace[array_rand($this->possibleRace)];
-
-        //use possible gender by picking one value from the array
-        $gender = $this->possibleGender[array_rand($this->possibleGender)];
-
-        $state = $this->possibleBoolState[array_rand($this->possibleBoolState)];
-
-        //use the factory to generate a teacher
-        UserFactory::seedATeacher($race, $gender, $state);
-    }
-
-
-    //teacher seeder
-    protected function seedParent()
-    {
-        //in stages. first create father,
-        // use callback, get father race,
-        // generate mother use father race
-        // generate child  use father race
-        // User::factory()
-        //     ->count(1)
-        //     ->roleIsParent()
-        //     ->create();
-    }
-
-    protected function seedAMalayFamily()
-    {
-        UserFactory::generateAFamily('Malay');
-    }
-
-    protected function seedAChineseFamily()
-    {
-        UserFactory::generateAFamily('Chinese');
-    }
-
-    protected function seedAnIndianFamily()
-    {
-        UserFactory::generateAFamily('Indian');
     }
 }

@@ -2,29 +2,83 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Attendance;
+use App\Models\Childs;
+use App\Models\Nonattendance;
+use App\Models\Unknowns;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Attendance>
- */
 class AttendanceFactory extends Factory
 {
-
     /**
      * Define the model's default state.
      *
-     * CREATE TABLE `attendance` (
-     * `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT, `child_id` bigint(20) unsigned NOT NULL, `date` date NOT NULL, `status` varchar(50) NOT NULL, `created_at` timestamp NULL DEFAULT NULL, `updated_at` timestamp NULL DEFAULT NULL, PRIMARY KEY (`id`), KEY `attendance_child_id` (`child_id`), CONSTRAINT `attendance_child_id` FOREIGN KEY (`child_id`) REFERENCES `childs` (`id`)
-     * ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci
-     * 
      * @return array<string, mixed>
      */
     public function definition(): array
     {
+        $child = Childs::inRandomOrder()->first() ?? Childs::factory()->create();
+        $date = $this->faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d');
+
+        // Ensure no attendance, nonattendance, or unknown record exists for this child and date
+        while ($this->recordExists($child->id, $date)) {
+            $date = $this->faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d');
+        }
+
         return [
-            //
+            'child_id' => $child->id,
+            'date' => $date,
             'status' => $this->faker->randomElement(['Present', 'Absent', 'Late']),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
+    }
+
+    protected function recordExists($childId, $date): bool
+    {
+        return Attendance::where('child_id', $childId)
+            ->where('date', $date)
+            ->exists()
+            || Nonattendance::where('child_id', $childId)
+            ->where('date', $date)
+            ->exists()
+            || Unknowns::where('child_id', $childId)
+            ->where('date', $date)
+            ->exists();
+    }
+
+    public function today()
+    {
+        return $this->state(function (array $attributes) {
+            $child = Childs::inRandomOrder()->first() ?? Childs::factory()->create();
+            $date = now()->format('Y-m-d');
+
+            // If a record exists for today, return null (no record will be created)
+            if ($this->recordExists($child->id, $date)) {
+                return null;
+            }
+
+            return [
+                'child_id' => $child->id,
+                'date' => $date,
+            ];
+        });
+    }
+
+    public function forChild(Childs $child)
+    {
+        return $this->state(function (array $attributes) use ($child) {
+            $date = $this->faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d');
+
+            // Ensure no attendance, nonattendance, or unknown record exists for this child and date
+            while ($this->recordExists($child->id, $date)) {
+                $date = $this->faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d');
+            }
+
+            return [
+                'child_id' => $child->id,
+                'date' => $date,
+            ];
+        });
     }
 }

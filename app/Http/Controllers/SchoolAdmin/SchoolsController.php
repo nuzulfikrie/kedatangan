@@ -209,8 +209,8 @@ class SchoolsController extends Controller
     {
         try {
             $id = $request->input('id');
-            $role = auth()->user()->role;
-            $userId = auth()->user()->id;
+            $role = $request->user()->role;
+            $userId = $request->user()->id;
 
             // Find the school by ID
             $school = Schoolsinstitutions::findOrFail($id);

@@ -26,7 +26,10 @@ use Laravel\Jetstream\Features;
 class UserFactory extends Factory
 {
     protected array $possibleRace = [
-        'Malay', 'Indian', 'Chinese', 'Others'
+        'Malay',
+        'Indian',
+        'Chinese',
+        'Others'
     ];
 
     /**
@@ -43,7 +46,7 @@ class UserFactory extends Factory
             'email' => $faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => Hash::make('password'), // password
+            'password' =>  Hash::driver('bcrypt')->make('password123'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -78,7 +81,7 @@ class UserFactory extends Factory
 
         return $this->has(
             Team::factory()
-                ->state(fn (array $attributes, User $user) => [
+                ->state(fn(array $attributes, User $user) => [
                     'name' => $user->name . '\'s Team',
                     'user_id' => $user->id,
                     'personal_team' => true,
@@ -157,7 +160,7 @@ class UserFactory extends Factory
             'email' => MalaysianFatherFaker::generateFatherEmail($name),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => Hash::make('password'), // password
+            'password' =>  Hash::driver('bcrypt')->make('password123'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -181,7 +184,7 @@ class UserFactory extends Factory
             'email' => MalaysianMotherFaker::generateMotherEmail($name),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => Hash::make('password'), // password
+            'password' =>  Hash::driver('bcrypt')->make('password123'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -277,6 +280,12 @@ class UserFactory extends Factory
                 'parent_id' => $motherParentRecord->id
             ]);
         }
+
+        //5 generate emergency contact
+        foreach ($childs as $child) {
+            UserFactory::seedAnEmergencyContact($fatherParentRecord->id, $child->id);
+            UserFactory::seedAnEmergencyContact($motherParentRecord->id, $child->id);
+        }
     }
 
     //create a chinese father
@@ -291,7 +300,7 @@ class UserFactory extends Factory
             'email' => MalaysianFatherFaker::generateFatherEmail($name),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => Hash::make('password'), // password
+            'password' =>  Hash::driver('bcrypt')->make('password123'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -316,7 +325,7 @@ class UserFactory extends Factory
             'email' => MalaysianMotherFaker::generateMotherEmail($name),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => Hash::make('password'), // password
+            'password' =>  Hash::driver('bcrypt')->make('password123'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -340,7 +349,7 @@ class UserFactory extends Factory
             'email' => MalaysianFatherFaker::generateFatherEmail($name),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => Hash::make('password'), // password
+            'password' =>  Hash::driver('bcrypt')->make('password123'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -365,7 +374,7 @@ class UserFactory extends Factory
             'email' => MalaysianMotherFaker::generateMotherEmail($name),
             'email_verified_at' => now(),
             //password is hashed
-            'password' => Hash::make('password'), // password
+            'password' =>  Hash::driver('bcrypt')->make('password123'), // password
 
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -410,21 +419,57 @@ class UserFactory extends Factory
         $fakerGenerator->addProvider(new Person($fakerGenerator));
         $faker = new MalaysianTeacherFaker($race, $gender);
         $name = $faker->generateName($fakerGenerator);
-        return [
-            'name' => $name,
-            'email' => $faker->generateEmail($name),
-            'email_verified_at' => now(),
-            //password is hashed
-            'password' => Hash::make('123456'), // password
 
-            'two_factor_secret' => null,
-            'two_factor_recovery_codes' => null,
-            'remember_token' => Str::random(10),
-            'profile_photo_path' => $faker->generatePhotoPath(),
-            'current_team_id' => null,
-            //flag is admin
-            'is_admin' => $is_admin,
-            'role' => 'teacher'
-        ];
+        if ($is_admin == true) {
+
+            return [
+                'name' => $name,
+                'email' => $faker->generateEmail($name),
+                'email_verified_at' => now(),
+                //password is hashed
+                'password' =>  Hash::driver('bcrypt')->make('123456'), // password
+
+                'two_factor_secret' => null,
+                'two_factor_recovery_codes' => null,
+                'remember_token' => Str::random(10),
+                'profile_photo_path' => $faker->generatePhotoPath(),
+                'current_team_id' => null,
+                //flag is admin
+                'is_admin' => $is_admin,
+                'role' => 'school_admin'
+            ];
+        } else {
+            return [
+                'name' => $name,
+                'email' => $faker->generateEmail($name),
+                'email_verified_at' => now(),
+                //password is hashed
+                'password' => Hash::driver('bcrypt')->make('123456', [
+                    //use bcrypt to generate the password
+
+
+                ]), // password
+
+                'two_factor_secret' => null,
+                'two_factor_recovery_codes' => null,
+                'remember_token' => Str::random(10),
+                'profile_photo_path' => $faker->generatePhotoPath(),
+                'current_team_id' => null,
+                //flag is admin
+                'is_admin' => $is_admin,
+                'role' => 'teacher'
+            ];
+        }
+    }
+
+    public static function seedAnEmergencyContact(int $parent_id, int $child_id)
+    {
+
+        $fakerGenerator = new Generator();
+        $fakerGenerator->addProvider(new Person($fakerGenerator));
+        $faker = new EmergencyContactFactory();
+        $faker->forChild(Childs::find($child_id));
+        $faker->forParent(Parents::find($parent_id));
+        return $faker->generate();
     }
 }
