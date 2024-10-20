@@ -2,14 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\Sitesettings;
+use App\Models\SiteSettings;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class SitesettingsFactory extends Factory
+class SiteSettingsFactory extends Factory
 {
-    protected $model = Sitesettings::class;
+    protected $model = SiteSettings::class;
 
-    protected $settingsGroups = [
+    public $settingsGroups = [
         'general' => [
             'site_name' => 'School Management System',
             'site_description' => 'Comprehensive school management solution',

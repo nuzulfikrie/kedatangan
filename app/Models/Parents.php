@@ -27,7 +27,23 @@ class Parents extends Model
 
     public function childs()
     {
-        return $this->hasMany(Childs::class, 'parent_id', 'id');
+        return $this->hasMany(
+            ChildParents::class,
+            'parent_id',
+            'id'
+        );
+    }
+
+    public function childrensData()
+    {
+        return $this->hasManyThrough(
+            Childs::class,
+            ChildParents::class,
+            'parent_id',
+            'id',
+            'id',
+            'child_id'
+        );
     }
 
     public function user()

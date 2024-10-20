@@ -2,45 +2,50 @@
 
 namespace Database\Factories;
 
-use Faker\Generator;
 use App\Fakers\MalaysianChildFaker;
+use App\Models\ChildParents;
+use App\Models\Schoolsinstitutions;
+use App\Models\User;
 use Faker\Provider\ms_MY\Person;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Childs>
  */
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Childs>
+ */
 class ChildsFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    protected static string $race;
-    protected static string $fatherName;
-    public static function initialize(string $race, string $fatherName)
-    {
-        self::$race = $race;
-        self::$fatherName = $fatherName;
-    }
     public function definition(): array
     {
-        $fakerGenerator = new Generator();
+        $fakerGenerator = $this->faker;
         $fakerGenerator->addProvider(new Person($fakerGenerator));
-        $faker = new MalaysianChildFaker(self::$race, self::$fatherName);
-        $faker::setGender();
-        $name = $faker->generateChildName($fakerGenerator);
+
+        $childName = $this->faker->firstName();
 
         return [
-            // 1 to 100
-            'school_id' => $this->faker->numberBetween(1, 100),
-            'child_name' => $name,
-            'dob' => $faker->generateChildDOB(),
-            'child_gender' => MalaysianChildFaker::getGender(),
-            'email' => MalaysianChildFaker::generateEmail($name),
-            'picture_path' => MalaysianChildFaker::filePicturePath()
-
+            'school_id' => Schoolsinstitutions::inRandomOrder()->first()->id,
+            'child_name' => $childName,
+            'dob' => $this->faker->date(),
+            'child_gender' => $this->faker->randomElement(['Male', 'Female']),
+            'email' => $this->faker->unique()->safeEmail(),
+            'picture_path' => $this->faker->imageUrl(640, 480, 'people'),
         ];
+    }
+
+    public function configure()
+    {
+        return $this->afterCreating(function ($child, $attributes) {
+            if (isset($attributes['parent_id'])) {
+                ChildParents::create([
+                    'child_id' => $child->id,
+                    'parent_id' => $attributes['parent_id'],
+                    'active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        });
     }
 }

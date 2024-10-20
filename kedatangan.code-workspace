@@ -1,16 +1,25 @@
 {
-    "folders": [
-        {
-            "path": "."
-        }
-    ],
+    "folders": [{
+        "path": "."
+    }],
     "settings": {
         "terminal.integrated.fontFamily": "RobotoMono Nerd Font",
         //terminal profile
         "[php]": {
             "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
             "suggest.basic": false,
-            "validate.run": "onType"
+            "validate.run": "onType",
+            //Set php extension /twig / blade to php interpreter
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "files.associations": {
+            "*.php": "php",
+            "*.blade.php": "blade"
+        },
+        "emmet.includeLanguages": {
+            "blade": "html"
+        },
+        "blade.format.enable": true
         },
         "[typescript]": {
             "editor.defaultFormatter": "vscode.typescript-language-features"
@@ -27,6 +36,9 @@
         // <!-- phpcs plugin -->
         "workbench.colorTheme": "Default Dark Modern",
         "intelephense.environment.phpVersion": "8.2.0",
+        "intelephense.codeLens.implementations.enable": true,
+        "intelephense.codeLens.implementations.show": true,
+        
         "phpstan.binPath": "/vendor/bin/phpstan.bat", // Replace with the actual path to the PHPStan executable
         "editor.formatOnSave": true, // Auto-format your code on save
         "intelephense.diagnostics.run": "onType", // Run Intelephense diagnostics while typing
@@ -59,8 +71,7 @@
     //tasks for laravel app
     "tasks": {
         "version": "2.0.0",
-        "tasks": [
-            {
+        "tasks": [{
                 "label": "artisan serve",
                 "type": "shell",
                 "command": "php artisan serve",

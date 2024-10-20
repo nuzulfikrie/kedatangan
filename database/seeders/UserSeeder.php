@@ -4,16 +4,17 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Database\Factories\SchoolsInstitutionsFactory;
 
-class SchoolsInstitutions extends Seeder
+class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        //call factory and create 100 schools
-        SchoolsInstitutionsFactory::times(1000)->create();
+        //create 1000 random records
+        for ($i = 0; $i < 1000; $i++) {
+            \App\Models\User::factory()->create();
+        }
     }
 }

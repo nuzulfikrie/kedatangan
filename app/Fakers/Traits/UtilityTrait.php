@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Fakers\Traits;
+namespace App\\\Traits;
 
 use Faker\Generator;
 
@@ -36,6 +36,8 @@ trait UtilityTrait
 
         $Name = str_replace(' ', '', $Name);
         $Name = preg_replace('/[^A-Za-z0-9\-]/', '', $Name);
+        //add timestamp for randomness and then append to name
+
         $Name = strtolower($Name);
         //combine with random email domain
         $emailDomain = $faker->randomElement(['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com']);

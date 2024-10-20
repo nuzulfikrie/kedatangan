@@ -5,7 +5,7 @@ namespace Database\Factories;
 use App\Models\Childs;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class ReminderFactory extends Factory
+class RemindersFactory extends Factory
 {
     /**
      * Define the model's default state.

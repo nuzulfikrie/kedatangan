@@ -18,6 +18,31 @@ class User extends Authenticatable
     use Notifiable;
     use TwoFactorAuthenticatable;
 
+    protected static $faker;
+
+
+    public static function boot()
+    {
+        self::$faker = \Faker\Factory::create();
+        //after create record
+        parent::boot();
+        static::created(function ($user) {
+            if ($user->role === 'father' || $user->role === 'mother') {
+                // Create corresponding parent record
+                //use faker malaysia
+                Parents::create([
+                    'parent_name' => $user->name,
+                    'phone_number' => null,
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'picture_path' => self::$faker->imageUrl(640, 480, 'people'),
+                    'race' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        });
+    }
     /**
      * The attributes that are mass assignable.
      *
@@ -60,18 +85,56 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
+    public function parent()
+    {
+        $this->hasOne(
+            Parents::class,
+            'user_id',
+            'id'
+        );
+    }
+
+    public function teacher()
+    {
+        $this->hasOne(
+            Teachers::class,
+            'user_id',
+            'id'
+        );
+    }
+
     public function schools()
     {
         if ($this->role == 'school_admin') {
 
-            return $this->hasMany(Schoolsadmin::class, 'school_admin_id', 'id');
+            return $this->hasMany(
+                Schoolsadmin::class,
+                'school_admin_id',
+                'id'
+            );
         }
+    }
+
+    public  function schoolsAdmin()
+    {
+        $this->hasMany(
+            Schoolsadmin::class,
+            'school_admin_id',
+            'id'
+        );
     }
 
     public function students()
     {
         if ($this->role == 'school_admin') {
-            return $this->hasManyThrough(PivotClassChild::class, Schoolsadmin::class, 'school_admin_id', 'school_id', 'id', 'school_id');
+            return $this->hasManyThrough(
+                PivotClassChild::class,
+                Schoolsadmin::class,
+                'school_admin_id',
+                'school_id',
+                'id',
+                'school_id'
+            );
         }
     }
 }

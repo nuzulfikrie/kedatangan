@@ -5,6 +5,8 @@ use App\Models\Schoolsinstitutions;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Models\Schoolsadmin;
+use App\Http\Controllers\ParentsController;
+use App\Http\Controllers\AvatarController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +28,7 @@ Route::get('/', function () {
     // Use layout for guest
     return view('welcome');
 })->name('welcome');
+
 
 
 // Dashboard routes
@@ -83,3 +86,31 @@ Route::prefix('schools_admin')->group(function () {
     Route::post('/schools/delete', [App\Http\Controllers\SchoolAdmin\SchoolsController::class, 'delete'])
         ->name('schools_admin.schools.delete');
 });
+
+
+//parents path
+
+// Parents Controller routes (resource-based)
+Route::prefix('parents')->group(function () {
+    Route::get('/', [ParentsController::class, 'index'])->name('parents.index');
+    Route::get('/create', [ParentsController::class, 'create'])->name('parents.create');
+    Route::post('/store', [ParentsController::class, 'store'])->name('parents.store');
+    Route::get('/{parent}', [ParentsController::class, 'show'])->name('parents.show');
+    Route::get('/{parent}/edit', [ParentsController::class, 'edit'])->name('parents.edit');
+    Route::delete('/{parent}', [ParentsController::class, 'destroy'])->name('parents.destroy');
+    Route::get('/{parent}/profile', [ParentsController::class, 'profile'])->name('parents.profile');
+    Route::put('/parents/{parent}', [ParentsController::class, 'update'])->name('parents.update');
+    Route::get('/manage_your_childs/{parent}', [ParentsController::class, 'manageYourChilds'])->name('parents.manage_your_childs');
+
+
+    // Child management routes
+    Route::post('/{parent}/add-child', [ParentsController::class, 'addChild'])->name('parents.addChild');
+    Route::delete('/{parent}/remove-child/{child}', [ParentsController::class, 'removeChild'])->name('parents.removeChild');
+
+    // Attendance routes
+    Route::get('/{parent}/attendance', [ParentsController::class, 'childrenAttendance'])
+        ->name('parents.childrenAttendance');
+});
+
+//avatar 
+Route::post('/upload-avatar', [AvatarController::class, 'store']);

@@ -12,6 +12,7 @@ use App\Models\Childs;
 use App\Models\Schoolsinstitutions;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceAndReminderGenerator
 {
@@ -31,10 +32,36 @@ class AttendanceAndReminderGenerator
             foreach ($languages as $language) {
                 $this->reminderTemplates[] = RemindersTemplate::factory()
                     ->create([
+                        'reminder' => self::generateReminder($language),
+                        'active' => true,
                         'channel' => $channel,
                         'language' => $language,
                     ]);
             }
+        }
+    }
+
+    public static function generateReminder(string $lang)
+    {
+
+        switch ($lang) {
+            case 'en':
+                # code...
+                return  'Reminder: Attendance is due today!';
+                break;
+            case  'ms':
+                return  'Maaf: Kehadiran hari ini diperlukan!';
+                break;
+            case 'zh':
+                return '提���:今天的出��是必需的!';
+                break;
+            case 'ta':
+                return  'மறப்பது: இன்று';
+                break;
+
+            default:
+                # code...
+                break;
         }
     }
 
@@ -108,11 +135,14 @@ class AttendanceAndReminderGenerator
     protected function createReminderAndStatus(Childs $child, $date)
     {
         $template = $this->getRandomReminderTemplate();
+        dump('-- template ');
+        dump($template);
 
+        Log::info($template);
         $reminder = Reminders::factory()->create([
             'child_id' => $child->id,
             'date' => $date,
-            'reminder' => $template->reminder,
+            'reminder' => 'This is template reminder'
         ]);
 
         $user = User::where('role', 'parent')

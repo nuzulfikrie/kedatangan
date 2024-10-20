@@ -2,11 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\ChildParents;
 use App\Models\Childs;
 use App\Models\Parents;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class EmergencyContactFactory extends Factory
+class EmergencyContactsFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -15,9 +16,10 @@ class EmergencyContactFactory extends Factory
      */
     public function definition(): array
     {
+        $parentId = \App\Models\Parents::inRandomOrder()->first()->id;
         return [
-            'parent_id' => Parents::factory(),
-            'child_id' => Childs::factory(),
+            'parent_id' => $parentId,
+            'child_id' => ChildParents::inRandomOrder()->where('parent_id', $parentId)->first(),
             'name' => $this->faker->name,
             'phone_number' => $this->faker->numerify('##########'), // Generates a 10-digit number
             'relationship' => $this->faker->randomElement(['Grandparent', 'Uncle', 'Aunt', 'Family Friend', 'Neighbor', 'Sibling']),

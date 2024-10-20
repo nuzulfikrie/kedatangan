@@ -9,7 +9,7 @@ use App\Models\ChildParents;
 use App\Models\EmergencyContacts;
 use Illuminate\Database\Seeder;
 
-class ParentSeeder extends Seeder
+class ParentsSeeder extends Seeder
 {
     public function run()
     {
@@ -54,7 +54,7 @@ class ParentSeeder extends Seeder
                 ]);
 
                 // Create a unique emergency contact for each child
-                EmergencyContact::factory()->forChild($child)->create();
+                EmergencyContacts::factory()->forChild($child)->create();
             }
         });
     }

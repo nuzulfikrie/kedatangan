@@ -41,12 +41,15 @@ class ResetAndSeedDatabase extends Command
         // Disable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        $tables = Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
+        // Get all table names
+        $tables = DB::select('SHOW TABLES');
+        $tableKey = 'Tables_in_' . DB::getDatabaseName();
 
         foreach ($tables as $table) {
-            if (!in_array($table, $this->excludedTables)) {
-                $this->info("Truncating table: {$table}");
-                DB::table($table)->truncate();
+            $tableName = $table->$tableKey;
+            if (!in_array($tableName, $this->excludedTables)) {
+                $this->info("Truncating table: {$tableName}");
+                DB::table($tableName)->truncate();
             }
         }
 
