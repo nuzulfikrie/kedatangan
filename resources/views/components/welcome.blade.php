@@ -38,7 +38,7 @@ $textMain = 'This site built for teachers , parents and students.';
         if ($parent) {
 
 
-            $children = \App\Models\Childs::where('parent_id', $parent->id)->get();
+            $children = \App\Models\ChildParents::where('parent_id', $parent->id)->get();
 
             if ($children->count() > 0) {
                 echo '<h2 class="mt-4 text-xl font-semibold text-gray-900 dark:text-white">Your Children:</h2>';

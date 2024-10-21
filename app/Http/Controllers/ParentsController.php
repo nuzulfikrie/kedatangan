@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateParentRequest;
+use App\Http\Requests\ParentCreateChildRequest;
 use App\Traits\AvatarHandlerTrait;
 use App\Models\Childs;
 use App\Models\ChildParents;
 use App\Models\Parents;
 use App\Models\File;
+use App\Models\SchoolsInstitutions;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -178,8 +180,23 @@ class ParentsController extends Controller
         }
     }
 
-    public function addChild(Request $request, Parents $parent)
+    public function createChild(Parents $parent)
     {
+        $this->authorize('update', $parent);
+
+        $schoolInstitutions = SchoolsInstitutions::all();
+
+        return view(
+            'parents.create_child',
+            compact('parent', 'schoolInstitutions')
+        );
+    }
+
+    public function addChild(ParentCreateChildRequest $request)
+    {
+        $request = $request->validated();
+        $parentId  = $request['parent_id'];
+        $parent = Parents::findOrFail($parentId);
         $this->authorize('update', $parent);
 
         $validated = $request->validate([
@@ -201,12 +218,13 @@ class ParentsController extends Controller
 
         $this->authorize('view', $parent);
 
-        $children = $parent->childs()->with('school')
-            ->with('childrenData')
+        $children = $parent->childParent()->with('school')
+            ->with('child')
             ->get();
 
         return view('parents.manage_your_childs', compact('parent', 'children'));
     }
+
 
 
     public function removeChild(Parents $parent, Childs $child)

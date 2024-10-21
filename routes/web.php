@@ -94,6 +94,8 @@ Route::prefix('schools_admin')->group(function () {
 Route::prefix('parents')->group(function () {
     Route::get('/', [ParentsController::class, 'index'])->name('parents.index');
     Route::get('/create', [ParentsController::class, 'create'])->name('parents.create');
+    Route::get('/create_child', [ParentsController::class, 'createChild'])->name('parents.create_child');
+
     Route::post('/store', [ParentsController::class, 'store'])->name('parents.store');
     Route::get('/{parent}', [ParentsController::class, 'show'])->name('parents.show');
     Route::get('/{parent}/edit', [ParentsController::class, 'edit'])->name('parents.edit');

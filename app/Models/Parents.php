@@ -25,7 +25,7 @@ class Parents extends Model
 
     public $timestamps = true;
 
-    public function childs()
+    public function childParent()
     {
         return $this->hasMany(
             ChildParents::class,
@@ -34,7 +34,7 @@ class Parents extends Model
         );
     }
 
-    public function childrensData()
+    public function child()
     {
         return $this->hasManyThrough(
             Childs::class,
