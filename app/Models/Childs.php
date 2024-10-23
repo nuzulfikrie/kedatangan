@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class Childs extends Model
 {
@@ -15,6 +16,7 @@ class Childs extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
+        'school_id',
         'child_name',
         'dob',
         'child_gender',
@@ -40,10 +42,50 @@ class Childs extends Model
     }
     public function childParents()
     {
-        return $this->hasMany(ChildParents::class);
-        //how to access this - $child->childParents->parent_id
+        return $this->hasMany(ChildParents::class, 'child_id', 'id');
     }
 
+
+
+    public function age()
+    {
+        if (!$this->dob) {
+            return 'Date of birth not set';
+        }
+
+        $dob = Carbon::createFromFormat('Y-m-d', $this->dob);
+        $now = Carbon::now();
+
+        // Get the precise difference in years, months, and days
+        $diff = $dob->diff($now);
+
+        $years = $diff->y;
+        $months = $diff->m;
+        $days = $diff->d;
+
+        return $this->formatAge($years, $months, $days);
+    }
+
+    private function formatAge($years, $months, $days)
+    {
+        $ageParts = [];
+
+        if ($years > 0) {
+            $ageParts[] = "$years year" . ($years > 1 ? 's' : '');
+        }
+
+        if ($months > 0) {
+            $ageParts[] = "$months month" . ($months > 1 ? 's' : '');
+        }
+
+        if ($days > 0) {
+            $ageParts[] = "$days day" . ($days > 1 ? 's' : '');
+        }
+
+
+
+        return implode(', ', $ageParts);
+    }
     public function school()
     {
         return $this->belongsTo(SchoolsInstitutions::class, 'school_id', 'id');

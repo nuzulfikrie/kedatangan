@@ -12,10 +12,33 @@ class ChildParents extends Model
     protected $table = 'child_parents';
     protected $primaryKey = 'id';
 
+    protected $fillable = [
+        'child_id',
+        'parent_id',
+        'active',
+        'created_at',
+        'updated_at'
+    ];
+
+    //cast 
+
+
     public function child()
     {
-        return $this->belongsTo(Childs::class);
-        //how to access this - $child->childParents->parent_id
+        return $this->hasOne(Childs::class, 'id', 'child_id');
+    }
+
+    public function schools()
+    {
+        return $this->hasManyThrough(
+            SchoolsInstitutions::class,
+            Childs::class,
+            'id',
+            'id',
+            'child_id',
+            'school_id'
+
+        );
     }
 
     public function parent()

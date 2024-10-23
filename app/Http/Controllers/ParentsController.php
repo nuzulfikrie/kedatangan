@@ -105,7 +105,7 @@ class ParentsController extends Controller
     {
         $this->authorize('view', $parent);
 
-        $parent->load('user', 'childs.school');
+        $parent->load('user', 'child');
         return view('parents.show', compact('parent'));
     }
 
@@ -180,9 +180,11 @@ class ParentsController extends Controller
         }
     }
 
-    public function createChild(Parents $parent)
+    public function createChild(Request $request)
     {
+        $parent = Parents::where('user_id', $request->user()->id)->first();
         $this->authorize('update', $parent);
+
 
         $schoolInstitutions = SchoolsInstitutions::all();
 
@@ -194,21 +196,70 @@ class ParentsController extends Controller
 
     public function addChild(ParentCreateChildRequest $request)
     {
-        $request = $request->validated();
-        $parentId  = $request['parent_id'];
-        $parent = Parents::findOrFail($parentId);
-        $this->authorize('update', $parent);
+        try {
+            $user = $request->user();
+            $validated = $request->validated();
+            $parentId  = $request['parent_id'];
+            $parent = Parents::findOrFail($parentId);
+            $this->authorize('update', $parent);
 
-        $validated = $request->validate([
-            'child_id' => 'required|exists:childs,id',
-        ]);
 
-        ChildParents::create([
-            'child_id' => $validated['child_id'],
-            'parent_id' => $parent->id,
-        ]);
+            DB::beginTransaction();
 
-        return redirect()->route('parents.show', $parent)->with('success', 'Child added successfully.');
+
+            if ($request->hasFile('picture')) {
+                $file = $request->file('picture');
+
+                $avatarPath = $this->uploadAvatar($file);
+
+
+                File::create([
+                    'storage_type' => 's3',
+                    'file_name' => $request->file('picture')->getClientOriginalName(),
+                    'file_extension' => $request->file('picture')->getClientOriginalExtension(),
+                    'file_path' =>  $avatarPath,
+                    'uploader_id' => $user->id,
+                    'remark' => 'avatar',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } else {
+                $this->faker = Faker::create('ms_MY');
+                $avatarPath = $this->faker->imageUrl(640, 480, 'people', true, 'avatar', true, 'jpg');
+            }
+
+            Log::info('####### data ############');
+            Log::info($validated);
+            Log::info('####### data ############');
+
+            $child = Childs::create([
+                'school_id' => $validated['school_id'],
+                'child_name' => $validated['child_name'],
+                'dob' => $validated['dob'],
+                'email' => $validated['email'],
+                'child_gender' => $validated['child_gender'],
+                'picture_path' => $avatarPath,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            ChildParents::create([
+                'child_id' => $child->id,
+                'parent_id' => $parent->id,
+                'active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
+
+            return redirect()->route('parents.show', $parent)->with('success', 'Child added successfully.');
+        } catch (Exception $e) {
+            Log::info('Error occurred in ' . $e->getFile() . ' at line ' . $e->getLine() . ' message  ' . $e->getMessage());
+            DB::rollBack();
+            return redirect()->route('parents.create_child')->with('error', 'An error occurred while creating the parent. Please try again later.');
+        }
     }
 
     public function manageYourChilds(int $parentId)
@@ -218,11 +269,22 @@ class ParentsController extends Controller
 
         $this->authorize('view', $parent);
 
-        $children = $parent->childParent()->with('school')
+        $children = $parent->childParent()->with('schools')
             ->with('child')
             ->get();
 
         return view('parents.manage_your_childs', compact('parent', 'children'));
+    }
+    public function editChild(int $parentId, int  $childId)
+    {
+
+        $parent = Parents::findOrFail($parentId);
+        $child  = Childs::findOrFail($childId);
+
+        $this->authorize('update', $parent);
+
+        return view('parents.edit_child', compact('parent', '        $child  = Childs::findOrFail($childId);
+'));
     }
 
 

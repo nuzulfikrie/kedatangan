@@ -13,7 +13,9 @@ $hasChild = $children->count() > 0;
             </p>
         </div>
         <div class="mt-4">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <?php
+            ?>
+            <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
                 <!-- if has child, show flowbite table, column, child name, age, school, edit, view -->
                 @if($hasChild)
                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -41,20 +43,18 @@ $hasChild = $children->count() > 0;
                             @foreach($children as $childParent)
                             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {{ $childParent->child->name }}
+                                    {{ $childParent->child->child_name }}
                                 </th>
                                 <td class="px-6 py-4">
-                                    {{ $childParent->child->age }}
+                                    {{ $childParent->child->age() }}
                                 </td>
                                 <td class="px-6 py-4">
-                                    {{ $childParent->child->school }}
+                                    {{ $childParent->child->school->name }}
                                 </td>
                                 <td class="px-6 py-4">
-                                    <a href="{{ route('edit_child', ['id' => $childParent->child->id]) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                                    <a href="{{ route('parents.edit_child', ['parent_id' => $parent->id, 'child_id' => $childParent->child->id]) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <a href="{{ route('view_child', ['id' => $childParent->child->id]) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">View</a>
-                                </td>
+
                             </tr>
                             @endforeach
                         </tbody>

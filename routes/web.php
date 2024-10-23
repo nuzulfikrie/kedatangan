@@ -106,7 +106,9 @@ Route::prefix('parents')->group(function () {
 
 
     // Child management routes
-    Route::post('/{parent}/add-child', [ParentsController::class, 'addChild'])->name('parents.addChild');
+    Route::post('/add-child', [ParentsController::class, 'addChild'])->name('parents.add-child');
+    Route::get('/edit_child', [ParentsController::class, 'editChild'])->name('parents.edit_child');
+
     Route::delete('/{parent}/remove-child/{child}', [ParentsController::class, 'removeChild'])->name('parents.removeChild');
 
     // Attendance routes

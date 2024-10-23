@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Seeders\SchoolsInstitutions;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -33,6 +34,8 @@ class Parents extends Model
             'id'
         );
     }
+
+
 
     public function child()
     {

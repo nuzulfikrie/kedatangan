@@ -11,7 +11,9 @@ class ParentCreateChildRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        //if user role is father or mother or admin , then he can create child
+
+        return true;
     }
 
     /**
@@ -21,8 +23,20 @@ class ParentCreateChildRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
+        $rules = [
+            'school_id' => 'required|exists:schools_institutions,id',
+            'parent_id' => 'required|exists:parents,id',
+            'child_name' => 'required|string|max:255',
+            'dob' => 'required|date|before:today',
+            'child_gender' => 'required|in:male,female',
+            'email' => 'required|email|max:255',
         ];
+
+        // Check if the file is present in the request
+        if ($this->hasFile('picture')) {
+            $rules['picture'] = 'required|image|mimes:jpeg,png,jpg,gif|max:2048'; // max file size 2MB
+        }
+
+        return $rules;
     }
 }
