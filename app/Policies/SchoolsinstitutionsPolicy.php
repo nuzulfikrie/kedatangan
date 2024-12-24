@@ -2,97 +2,126 @@
 
 namespace App\Policies;
 
-use App\Models\Schoolsadmin;
 use App\Models\Schoolsinstitutions;
 use App\Models\User;
+use App\Models\Schoolsadmin;
+use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
-use Illuminate\Support\Facades\Log;
 
 class SchoolsinstitutionsPolicy
 {
-    // Dashboard policy
-    public function dashboard(User $user): bool
-    {
-        if ($user->role === 'school_admin') {
-            return $user->id === $user->school_admin_id;
-        }
+    use HandlesAuthorization;
 
-        return $user->role === 'admin';
+    /**
+     * Determine whether the user can view any models.
+     */
+    public function viewAny(User $user): bool
+    {
+        return $user->role === 'school_admin' || $user->role === 'super_admin';
     }
 
-    // Determine whether the user can view any models.
-    public function viewAny(User $user): Response
-    {
-
-        if (in_array($user->role, ['school_admin', 'admin'])) {
-            Log::info('--- role admin true');
-            return Response::allow();
-        }
-
-        return Response::deny('You do not have permission to view schools institutions.');
-    }
-
-    // Determine whether the user can view the model.
+    /**
+     * Determine whether the user can view the model.
+     */
     public function view(User $user, Schoolsinstitutions $schoolsinstitutions): bool
     {
+        if ($user->role === 'super_admin') {
+            return true;
+        }
+        // Check if user is a school admin
+        if ($user->role !== 'school_admin') {
+            return false;
+        }
 
+        // Get all schools this admin has access to
         if ($user->role === 'school_admin') {
+            $schoolAdminRecords = Schoolsadmin::where('school_admin_id', $user->id)
+                ->pluck('school_id')
+                ->toArray();
 
-            $schoolAdmin = Schoolsadmin::where('school_id', $schoolsinstitutions->id)->first();
-            return $user->id === $schoolAdmin->school_admin_id;
+            $isAdminEligible = in_array($schoolsinstitutions->id, $schoolAdminRecords);
+
+            return $isAdminEligible;
         }
-
-        return $user->role === 'admin';
     }
 
-    // Determine whether the user can create models.
-    public function create(User $user): Response
+    /**
+     * Determine whether the user can create models.
+     */
+    public function create(User $user): bool
     {
-        if (in_array($user->role, ['admin', 'school_admin'])) {
-            return Response::allow();
-        }
-
-        return Response::deny('You are not authorized to create a school.');
+        return $user->role === 'school_admin' || $user->role === 'super_admin';
     }
 
-    // Determine whether the user can update the model.
+    /**
+     * Determine whether the user can update the model.
+     */
     public function update(User $user, Schoolsinstitutions $schoolsinstitutions): bool
     {
-        if ($user->role === 'school_admin') {
-
-            $schoolAdmin = Schoolsadmin::where('school_id', $schoolsinstitutions->id)->first();
-            return $user->id === $schoolAdmin->school_admin_id;
+        if ($user->role === 'super_admin') {
+            return true;
+        }
+        // Check if user is a school admin
+        if ($user->role !== 'school_admin') {
+            return false;
         }
 
-        return $user->role === 'admin';
+        // Get all schools this admin has access to
+        if ($user->role === 'school_admin') {
+            $schoolAdminRecords = Schoolsadmin::where('school_admin_id', $user->id)
+                ->pluck('school_id')
+                ->toArray();
+
+            $isAdminEligible = in_array($schoolsinstitutions->id, $schoolAdminRecords);
+
+            return $isAdminEligible;
+        }
     }
 
-    // Determine whether the user can delete the model.
+    /**
+     * Determine whether the user can delete the model.
+     */
     public function delete(User $user, Schoolsinstitutions $schoolsinstitutions): bool
     {
-
-        if ($user->role === 'school_admin') {
-
-            $schoolAdmin = Schoolsadmin::where('school_id', $schoolsinstitutions->id)->first();
-            return $user->id === $schoolAdmin->school_admin_id;
+        if ($user->role === 'super_admin') {
+            return true;
+        }
+        // Check if user is a school admin
+        if ($user->role !== 'school_admin') {
+            return false;
         }
 
-        return $user->role === 'admin';
+        // Get all schools this admin has access to
+        if ($user->role === 'school_admin') {
+            $schoolAdminRecords = Schoolsadmin::where('school_admin_id', $user->id)
+                ->pluck('school_id')
+                ->toArray();
+
+            $isAdminEligible = in_array($schoolsinstitutions->id, $schoolAdminRecords);
+
+            return $isAdminEligible;
+        }
     }
 
-    // Determine whether the user can restore the model.
-    public function restore(User $user, Schoolsinstitutions $schoolsinstitutions): bool
+    public function manage(User $user, Schoolsinstitutions $schoolsinstitutions): bool
     {
-        if ($user->role === 'school_admin') {
-            return $user->id === $user->school_admin_id && $schoolsinstitutions->trashed();
+        if ($user->role === 'super_admin') {
+            return true;
+        }
+        // Check if user is a school admin
+        if ($user->role !== 'school_admin') {
+            return false;
         }
 
-        return $user->role === 'admin';
-    }
+        // Get all schools this admin has access to
+        if ($user->role === 'school_admin') {
+            $schoolAdminRecords = Schoolsadmin::where('school_admin_id', $user->id)
+                ->pluck('school_id')
+                ->toArray();
 
-    // Determine whether the user can permanently delete the model.
-    public function forceDelete(User $user, Schoolsinstitutions $schoolsinstitutions): bool
-    {
-        return $user->role === 'admin' && $schoolsinstitutions->trashed();
+            $isAdminEligible = in_array($schoolsinstitutions->id, $schoolAdminRecords);
+
+            return $isAdminEligible;
+        }
     }
 }

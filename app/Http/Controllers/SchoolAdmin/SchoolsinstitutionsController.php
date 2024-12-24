@@ -7,13 +7,14 @@ use App\Models\Classes;
 use App\Models\PivotClassChild;
 use App\Models\Schoolsinstitutions;
 use App\Models\Schoolsadmin;
+use App\Models\Childs;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class SchoolsController extends Controller
+class SchoolsinstitutionsController extends Controller
 {
     // in here we create, edit and delete schools
 
@@ -22,56 +23,71 @@ class SchoolsController extends Controller
     {
         $this->authorize('dashboard', Schoolsinstitutions::class);
 
-        $userId = auth()->user()->id;
-        $user = User::find($userId);
 
-        $schoolsAdmin = SchoolsAdmin::where('school_admin_id', '=', $userId)->firstOrFail();
-        $hasSchool = SchoolsAdmin::isNotEmpty($userId);
 
         return view('schools_admin.dashboard');
     }
-    public function index(int $schoolAdminId)
+    public function index(Request $request)
     {
         try {
+            $query = $request->get('query');
+            $filter = $request->get('filter', 'all');
 
             $role = auth()->user()->role;
+            $userId = auth()->user()->id;
+
+            // Initialize schools query
+            $schools = null;
+            $hasSchool = false;
 
             if ($role === 'school_admin') {
-                $user = User::find($schoolAdminId);
-
-                $schoolsAdmin = SchoolsAdmin::where('school_admin_id', '=', $schoolAdminId)->firstOrFail();
-
+                $schoolsAdmin = SchoolsAdmin::where('school_admin_id', $userId)->get();
+                $schoolIds = $schoolsAdmin->pluck('school_id');
 
                 $this->authorize('viewAny', Schoolsinstitutions::class);
-                $hasSchool = SchoolsAdmin::isNotEmpty($schoolAdminId);
-
-
+                $hasSchool = SchoolsAdmin::isNotEmpty($userId);
 
                 if ($hasSchool) {
-                    $schoolIds = $schoolsAdmin->pluck('school_id');
-                    $schools = Schoolsinstitutions::whereIn('id', $schoolIds)->get();
-                } else {
-                    $schools = null;
+                    $schools = Schoolsinstitutions::whereIn('id', $schoolIds);
                 }
-            } elseif ($role === 'admin') {
-                # code...
-
-                $schools = Schoolsinstitutions::all();
+            } elseif ($role === 'super_admin') {
+                $schools = Schoolsinstitutions::query();
+                $hasSchool = true;
                 $this->authorize('viewAny', Schoolsinstitutions::class);
             }
 
+            if ($schools) {
+                // Apply search
+                if ($query) {
+                    $schools->where(function ($q) use ($query) {
+                        $q->where('name', 'LIKE', "%{$query}%")
+                            ->orWhere('address', 'LIKE', "%{$query}%")
+                            ->orWhere('school_email', 'LIKE', "%{$query}%");
+                    });
+                }
 
+                // Apply filters
+                if ($filter === 'active') {
+                    $schools->where('record_active', true);
+                } elseif ($filter === 'inactive') {
+                    $schools->where('record_active', false);
+                }
 
+                $schools = $schools->paginate(20)->withQueryString();
+            } else {
+                // If no schools query was initialized, create an empty paginator
+                $schools = new \Illuminate\Pagination\LengthAwarePaginator(
+                    [], // Empty array of items
+                    0,  // Total items
+                    20, // Items per page
+                    1   // Current page
+                );
+            }
 
-            return view('schools_admin.schools.index', compact('schools', 'hasSchool'));
+            return view('schools_admin.schools.index', compact('schools', 'hasSchool', 'query', 'filter'));
         } catch (Exception $e) {
             Log::info('--- error --' . $e->getMessage());
-
-            return redirect()->route('dashboard')->with(
-                'error ',
-                'Error ' .  $e->getMessage()
-
-            );
+            return redirect()->route('dashboard')->with('error', 'Error ' . $e->getMessage());
         }
     }
 
@@ -120,28 +136,21 @@ class SchoolsController extends Controller
 
 
 
-    public function show(Request $request, int $id)
+    public function show(Request $request, Schoolsinstitutions $schoolsinstitutions)
     {
         try {
-            $userId = auth()->user()->id;
-            $user = User::find($userId);
-            $school = Schoolsinstitutions::findOrFail($id);
-            if ($request->user()->cannot('view', $school)) {
-                abort(403);
-            }
+            // Use authorize method from AuthorizesRequests trait
+            $school = Schoolsinstitutions::findOrFail($schoolsinstitutions->id);
+            $this->authorize('view', [$school]);
 
-            return view('schools_admin.schools.show', compact('school'));
+            return view('schools_admin.schools.show', [
+                'school' => $schoolsinstitutions
+            ]);
         } catch (Exception $e) {
-            Log::info('Error ');
-            Log::info($e);
+            Log::error('Error viewing school: ' . $e->getMessage());
             return redirect()->route('dashboard')->with(
                 'error',
-                'Error ' . $e->getMessage()
-                    . ' on '
-                    . $e->getFile()
-                    . ' at '
-                    . $e->getLine()
-                    . 'Something went wrong, please try again later.'
+                'Unable to view school. Please try again later.'
             );
         }
     }
@@ -153,7 +162,9 @@ class SchoolsController extends Controller
             $userId = auth()->user()->id;
             $user = User::find($userId);
             $school = Schoolsinstitutions::findOrFail($id);
-            if ($request->user()->cannot('view', $school)) {
+            $this->authorize('update', $school);
+
+            if ($request->user()->cannot('update', [$user, $school])) {
                 abort(403);
             }
 
@@ -176,8 +187,10 @@ class SchoolsController extends Controller
     public function update(Request $request)
     {
         try {
+            $userId = auth()->user()->id;
+            $user = User::find($userId);
             $school = Schoolsinstitutions::findOrFail($request->id);
-            if ($request->user()->cannot('update', $school)) {
+            if ($request->user()->cannot('update', [$user, $school])) {
                 abort(403);
             }
 
@@ -211,12 +224,12 @@ class SchoolsController extends Controller
             $id = $request->input('id');
             $role = $request->user()->role;
             $userId = $request->user()->id;
-
+            $user = User::find($userId);
             // Find the school by ID
             $school = Schoolsinstitutions::findOrFail($id);
 
             // Check authorization
-            if ($request->user()->cannot('delete', $school)) {
+            if ($request->user()->cannot('delete', [$user, $school])) {
                 abort(403);
             }
 
@@ -260,5 +273,16 @@ class SchoolsController extends Controller
                 return redirect()->route('schools_admin.schools.index')->withErrors($errorMessage);
             }
         }
+    }
+
+    public function manage(int $id)
+    {
+
+        $school = Schoolsinstitutions::findOrFail($id);
+        //find all childs for this school
+        $childs = Childs::where('school_id', $school->id)->get();
+
+        $this->authorize('manage', [$school]);
+        return view('schools_admin.schools.manage', compact('school', 'childs'));
     }
 }

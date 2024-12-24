@@ -91,7 +91,7 @@ class ParentsController extends Controller
         $parent = Parents::where('id', $parentId)->with(
             [
                 'user',
-                'childs'
+                'child'
             ]
         )->first();
         $this->authorize('view', $parent);
@@ -194,6 +194,7 @@ class ParentsController extends Controller
         );
     }
 
+
     public function addChild(ParentCreateChildRequest $request)
     {
         try {
@@ -228,9 +229,6 @@ class ParentsController extends Controller
                 $avatarPath = $this->faker->imageUrl(640, 480, 'people', true, 'avatar', true, 'jpg');
             }
 
-            Log::info('####### data ############');
-            Log::info($validated);
-            Log::info('####### data ############');
 
             $child = Childs::create([
                 'school_id' => $validated['school_id'],
@@ -275,16 +273,23 @@ class ParentsController extends Controller
 
         return view('parents.manage_your_childs', compact('parent', 'children'));
     }
+    /**
+     * Edit child
+     *
+     * @param integer $parentId
+     * @param integer $childId
+     * @return void
+     */
     public function editChild(int $parentId, int  $childId)
     {
+        $schoolInstitutions = SchoolsInstitutions::all();
 
         $parent = Parents::findOrFail($parentId);
         $child  = Childs::findOrFail($childId);
 
         $this->authorize('update', $parent);
 
-        return view('parents.edit_child', compact('parent', '        $child  = Childs::findOrFail($childId);
-'));
+        return view('parents.edit_child', compact('parent', 'child', 'schoolInstitutions'));
     }
 
 

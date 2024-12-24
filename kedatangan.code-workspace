@@ -6,6 +6,10 @@
         "terminal.integrated.fontFamily": "RobotoMono Nerd Font",
         //terminal profile
         "[php]": {
+            "validate.executablePath": "/c/laragon/bin/php/php-8.3.0-Win32-vs16-x64/php.exe",
+            "intelephense.environment.phpVersion": "8.3.0",
+            "intelephense.codeLens.implementations.enable": true,
+            "intelephense.codeLens.implementations.show": true,
             "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
             "suggest.basic": false,
             "validate.run": "onType",
@@ -35,10 +39,10 @@
         },
         // <!-- phpcs plugin -->
         "workbench.colorTheme": "Default Dark Modern",
-        "intelephense.environment.phpVersion": "8.2.0",
+        "intelephense.environment.phpVersion": "8.3.0",
         "intelephense.codeLens.implementations.enable": true,
         "intelephense.codeLens.implementations.show": true,
-        
+
         "phpstan.binPath": "/vendor/bin/phpstan.bat", // Replace with the actual path to the PHPStan executable
         "editor.formatOnSave": true, // Auto-format your code on save
         "intelephense.diagnostics.run": "onType", // Run Intelephense diagnostics while typing

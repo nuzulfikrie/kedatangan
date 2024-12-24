@@ -10,6 +10,7 @@ use App\Models\Reminders;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Enums\AttendanceEnum;
 
 class AttendanceController extends Controller
 {
@@ -23,20 +24,16 @@ class AttendanceController extends Controller
         return view('attendance.index', compact('attendances', 'nonAttendances', 'unknowns', 'date'));
     }
 
-    public function create()
+    public function create(int $schoolId, int $childId)
     {
-        $children = Childs::all();
-        return view('attendance.create', compact('children'));
+        $children = Childs::where('school_id', $schoolId)->where('id', $childId)->get();
+        $statuses = AttendanceEnum::getAttendanceStatuses();
+        return view('attendance.create', compact('children', 'statuses'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'child_id' => 'required|exists:childs,id',
-            'date' => 'required|date',
-            'status' => 'required|in:present,absent,unknown',
-            'reason' => 'required_if:status,absent|nullable|string',
-        ]);
+        $request->validate(Attendance::rules());
 
         DB::transaction(function () use ($request) {
             $childId = $request->child_id;
@@ -48,21 +45,21 @@ class AttendanceController extends Controller
             Unknowns::where('child_id', $childId)->whereDate('date', $date)->delete();
 
             switch ($request->status) {
-                case 'present':
+                case AttendanceEnum::getPresent():
                     Attendance::create([
                         'child_id' => $childId,
                         'date' => $date,
                         'status' => 'Present',
                     ]);
                     break;
-                case 'absent':
+                case AttendanceEnum::getAbsent():
                     Nonattendance::create([
                         'child_id' => $childId,
                         'date' => $date,
                         'reason' => $request->reason,
                     ]);
                     break;
-                case 'unknown':
+                case AttendanceEnum::getUnknown():
                     Unknowns::create([
                         'child_id' => $childId,
                         'date' => $date,

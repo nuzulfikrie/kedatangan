@@ -5,12 +5,14 @@ namespace App\Policies;
 use App\Models\Schoolsadmin;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Log;
 
 class SchoolsadminPolicy
 {
 
 
     const ROLE_ADMIN = 'admin';
+    const ROLE_SUPER_ADMIN = 'super_admin';
     const ROLE_SCHOOLADMIN = 'school_admin';
     const ROLE_TEACHER = 'teacher';
     const ROLE_STUDENT = 'student';
@@ -21,7 +23,7 @@ class SchoolsadminPolicy
      */
     public function viewAny(User $user): Response
     {
-        return $user->hasRole(self::ROLE_ADMIN)
+        return $user->hasRole(self::ROLE_ADMIN) || $user->hasRole(self::ROLE_SUPER_ADMIN)
             ? Response::allow()
             : Response::deny('You must be an admin to view Schools ladmin\.');
     }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\AttendanceEnum;
 
 class Attendance extends Model
 {
@@ -24,6 +25,21 @@ class Attendance extends Model
         'date' => 'date',
         'status' => 'string',
     ];
+
+    public function getStatusAttribute($value)
+    {
+        return AttendanceEnum::getAttendanceStatuses()[$value];
+    }
+
+    public static function rules()
+    {
+        return [
+            'child_id' => 'required|exists:childs,id',
+            'date' => 'required|date',
+            'status' => 'required|in:' . implode(',', AttendanceEnum::getAttendanceStatuses()),
+            'reason' => 'required_if:status,absent|nullable|string',
+        ];
+    }
 
     // Enables the timestamps for created_at and updated_at columns
     public $timestamps = true;

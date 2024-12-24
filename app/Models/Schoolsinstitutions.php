@@ -21,6 +21,14 @@ class Schoolsinstitutions extends Model
 
     protected $attributes = [];
 
+    protected $fillable = [
+        'name',
+        'address',
+        'phone_number',
+        'school_email',
+        'school_website',
+    ];
+
     public function schoolsAdmin()
     {
         return $this->hasMany('schools_admin', 'school_id', 'id');
@@ -110,5 +118,13 @@ class Schoolsinstitutions extends Model
     public function childs()
     {
         return $this->hasMany(PivotClassChild::class, 'child_id');
+    }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'id';
     }
 }

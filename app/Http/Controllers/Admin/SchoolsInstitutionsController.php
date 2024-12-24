@@ -41,7 +41,7 @@ class SchoolsInstitutionsController extends Controller
     public function delete($id)
     {
         //get children by school id
-        $children = Children::where('school_id', $id)->get();
+        $children = Childs::where('school_id', $id)->get();
 
         //get school by id
         $school = Schoolsinstitutions::find($id);

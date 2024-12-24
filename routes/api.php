@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\TelegramWebhookController;
+use App\Http\Controllers\Api\SlackWebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +19,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::post('/webhooks/telegram', [TelegramWebhookController::class, 'handle']);
+Route::post('/webhooks/slack', [SlackWebhookController::class, 'handle']);
+Route::get('/oauth/slack/callback', [SlackWebhookController::class, 'handleOAuth'])->name('slack.oauth.callback');

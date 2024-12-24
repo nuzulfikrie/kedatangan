@@ -14,17 +14,27 @@ class ChildsController extends Controller
 {
     public function index()
     {
-        $children = Childs::with('school')->paginate(15);
+        $children = Childs::all();
         return view('childs.index', compact('children'));
     }
 
+    public function teacherCreate(int $schoolId)
+    {
+        $school = SchoolsInstitutions::where('id', $schoolId)->first();
+        $parents = Parents::all();
+        return view('childs.create', compact('school', 'parents'));
+    }
     public function create()
     {
         $schools = SchoolsInstitutions::all();
         $parents = Parents::all();
         return view('childs.create', compact('schools', 'parents'));
     }
-
+    public function profile(Childs $child)
+    {
+        $child = Childs::where('id', $child->id)->with('school')->with('parent')->first();
+        return view('childs.profile', compact('child'));
+    }
     public function store(Request $request)
     {
         $request->validate([

@@ -45,6 +45,18 @@ class Childs extends Model
         return $this->hasMany(ChildParents::class, 'child_id', 'id');
     }
 
+    public function parent()
+    {
+        return $this->hasManyThrough(
+            Parents::class, // Make sure this matches your model name
+            ChildParents::class, // The intermediate model
+            'child_id', // Foreign key on the child_parents table
+            'id', // Foreign key on the parents table
+            'id', // Local key on the childs table
+            'parent_id' // Local key on the child_parents table
+        );
+    }
+
 
 
     public function age()

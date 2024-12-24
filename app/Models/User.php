@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable
 {
@@ -20,16 +20,17 @@ class User extends Authenticatable
 
     protected static $faker;
 
-
     public static function boot()
     {
-        self::$faker = \Faker\Factory::create();
-        //after create record
         parent::boot();
+        self::$faker = \Faker\Factory::create();
+
+        static::creating(function ($user) {
+            $user->status = $user->status ?? 'active';
+        });
+
         static::created(function ($user) {
             if ($user->role === 'father' || $user->role === 'mother') {
-                // Create corresponding parent record
-                //use faker malaysia
                 Parents::create([
                     'parent_name' => $user->name,
                     'phone_number' => null,
@@ -43,23 +44,16 @@ class User extends Authenticatable
             }
         });
     }
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
+        'is_admin',
+        'status',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -67,23 +61,34 @@ class User extends Authenticatable
         'two_factor_secret',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_admin' => 'boolean',
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array<int, string>
-     */
     protected $appends = [
         'profile_photo_url',
     ];
+
+    /**
+     * Get the is_admin attribute.
+     */
+    protected function isAdmin(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => (bool) $this->attributes['is_admin'],
+        );
+    }
+
+    /**
+     * Get the is_active attribute.
+     */
+    protected function isActive(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => ($this->attributes['status'] ?? 'inactive') === 'active',
+        );
+    }
 
     public function parent()
     {
