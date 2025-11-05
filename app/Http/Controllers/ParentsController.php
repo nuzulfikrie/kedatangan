@@ -2,25 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Teachers as TeacherModel;
-use App\Models\Schoolsinstitutions;
+use App\Models\Parents;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
-class Teachers extends Controller
+class ParentsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $teachers = TeacherModel::with(['user', 'schoolsinstitution'])
+        $parents = Parents::with('user')
             ->paginate(15);
 
-        return view('teachers.index', compact('teachers'));
+        return view('parents.index', compact('parents'));
     }
 
     /**
@@ -28,12 +27,11 @@ class Teachers extends Controller
      */
     public function create()
     {
-        $schools = Schoolsinstitutions::all();
         $users = User::whereDoesntHave('teacher')
             ->whereDoesntHave('parent')
             ->get();
 
-        return view('teachers.create', compact('schools', 'users'));
+        return view('parents.create', compact('users'));
     }
 
     /**
@@ -42,10 +40,10 @@ class Teachers extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'teacher_name' => 'required|string|max:255',
-            'teacher_specialization' => 'required|string|max:255',
-            'user_id' => 'required|exists:users,id|unique:teachers,user_id',
-            'school_id' => 'required|exists:schools_institutions,id',
+            'user_id' => 'required|exists:users,id|unique:parents,user_id',
+            'parent_name' => 'required|string|max:255',
+            'phone_number' => 'required|string|max:15',
+            'email' => 'required|email|max:255|unique:parents,email',
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -53,70 +51,75 @@ class Teachers extends Controller
         try {
             // Handle picture upload
             if ($request->hasFile('picture')) {
-                $picturePath = $request->file('picture')->store('teachers', 'public');
+                $picturePath = $request->file('picture')->store('parents', 'public');
                 $validated['picture_path'] = $picturePath;
             } else {
                 $validated['picture_path'] = 'default.png';
             }
 
-            $teacher = TeacherModel::create($validated);
+            $parent = Parents::create($validated);
 
             // Update user role
             $user = User::find($validated['user_id']);
-            $user->role = 'teacher';
+            $user->role = 'parent';
             $user->save();
 
             DB::commit();
 
             return redirect()
-                ->route('teachers.index')
-                ->with('success', 'Teacher created successfully.');
+                ->route('parents.index')
+                ->with('success', 'Parent created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', 'Failed to create teacher: ' . $e->getMessage());
+                ->with('error', 'Failed to create parent: ' . $e->getMessage());
         }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(TeacherModel $teacher)
+    public function show(Parents $parent)
     {
-        $teacher->load(['user', 'schoolsinstitution']);
+        $parent->load(['user', 'childs', 'emergencyContacts']);
 
-        return view('teachers.show', compact('teacher'));
+        return view('parents.show', compact('parent'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(TeacherModel $teacher)
+    public function edit(Parents $parent)
     {
-        $schools = Schoolsinstitutions::all();
         $users = User::whereDoesntHave('teacher')
-            ->orWhere('id', $teacher->user_id)
+            ->whereDoesntHave('parent')
+            ->orWhere('id', $parent->user_id)
             ->get();
 
-        return view('teachers.edit', compact('teacher', 'schools', 'users'));
+        return view('parents.edit', compact('parent', 'users'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TeacherModel $teacher)
+    public function update(Request $request, Parents $parent)
     {
         $validated = $request->validate([
-            'teacher_name' => 'required|string|max:255',
-            'teacher_specialization' => 'required|string|max:255',
             'user_id' => [
                 'required',
                 'exists:users,id',
-                Rule::unique('teachers', 'user_id')->ignore($teacher->id),
+                Rule::unique('parents', 'user_id')->ignore($parent->id),
             ],
-            'school_id' => 'required|exists:schools_institutions,id',
+            'parent_name' => 'required|string|max:255',
+            'phone_number' => 'required|string|max:15',
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('parents', 'email')->ignore($parent->id),
+            ],
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -125,67 +128,67 @@ class Teachers extends Controller
             // Handle picture upload
             if ($request->hasFile('picture')) {
                 // Delete old picture if exists
-                if ($teacher->picture_path && $teacher->picture_path !== 'default.png') {
-                    Storage::disk('public')->delete($teacher->picture_path);
+                if ($parent->picture_path && $parent->picture_path !== 'default.png') {
+                    Storage::disk('public')->delete($parent->picture_path);
                 }
-                $picturePath = $request->file('picture')->store('teachers', 'public');
+                $picturePath = $request->file('picture')->store('parents', 'public');
                 $validated['picture_path'] = $picturePath;
             }
 
-            $teacher->update($validated);
+            $parent->update($validated);
 
             // Update user role if user_id changed
-            if ($teacher->user_id !== $teacher->getOriginal('user_id')) {
+            if ($parent->user_id !== $parent->getOriginal('user_id')) {
                 $newUser = User::find($validated['user_id']);
-                $newUser->role = 'teacher';
+                $newUser->role = 'parent';
                 $newUser->save();
             }
 
             DB::commit();
 
             return redirect()
-                ->route('teachers.index')
-                ->with('success', 'Teacher updated successfully.');
+                ->route('parents.index')
+                ->with('success', 'Parent updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', 'Failed to update teacher: ' . $e->getMessage());
+                ->with('error', 'Failed to update parent: ' . $e->getMessage());
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TeacherModel $teacher)
+    public function destroy(Parents $parent)
     {
         DB::beginTransaction();
         try {
             // Delete picture if exists
-            if ($teacher->picture_path && $teacher->picture_path !== 'default.png') {
-                Storage::disk('public')->delete($teacher->picture_path);
+            if ($parent->picture_path && $parent->picture_path !== 'default.png') {
+                Storage::disk('public')->delete($parent->picture_path);
             }
 
             // Reset user role
-            $user = User::find($teacher->user_id);
+            $user = User::find($parent->user_id);
             if ($user) {
                 $user->role = 'user';
                 $user->save();
             }
 
-            $teacher->delete();
+            $parent->delete();
 
             DB::commit();
 
             return redirect()
-                ->route('teachers.index')
-                ->with('success', 'Teacher deleted successfully.');
+                ->route('parents.index')
+                ->with('success', 'Parent deleted successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()
                 ->back()
-                ->with('error', 'Failed to delete teacher: ' . $e->getMessage());
+                ->with('error', 'Failed to delete parent: ' . $e->getMessage());
         }
     }
 }

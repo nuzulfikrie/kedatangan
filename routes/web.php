@@ -17,18 +17,37 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
-## for jetstream
+## Jetstream Dashboard
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
-## login get and post
-// Route::get('/login', [LoginController::class, 'index'])->name('login');
-// Route::post('/login', [LoginController::class, 'store']);
+## Protected Routes - Require Authentication
+Route::middleware(['auth'])->group(function () {
 
-// ## register get and post
-// Route::get('/register', [RegisterController::class, 'index'])->name('register');
-// Route::post('/register', [RegisterController::class, 'store']);
+    // Schools/Institutions Routes
+    Route::resource('schools', \App\Http\Controllers\SchoolsinstitutionsController::class);
+    Route::get('schools/{school}/dashboard', [\App\Http\Controllers\SchoolsinstitutionsController::class, 'dashboard'])
+        ->name('schools.dashboard');
 
- ## -- trick , you can use laravel jetstream.
+    // Teachers Routes
+    Route::resource('teachers', \App\Http\Controllers\Teachers::class);
+
+    // Parents Routes
+    Route::resource('parents', \App\Http\Controllers\ParentsController::class);
+
+    // Children Routes
+    Route::resource('childs', \App\Http\Controllers\ChildsController::class);
+
+    // Classes Routes
+    Route::resource('classes', \App\Http\Controllers\ClassesController::class);
+
+    // Attendance Routes
+    Route::resource('attendance', \App\Http\Controllers\AttendanceController::class);
+    Route::get('attendance-today', [\App\Http\Controllers\AttendanceController::class, 'markToday'])
+        ->name('attendance.mark-today');
+    Route::get('attendance-report', [\App\Http\Controllers\AttendanceController::class, 'report'])
+        ->name('attendance.report');
+});
+
+## Authentication routes are handled by Laravel Jetstream/Fortify
