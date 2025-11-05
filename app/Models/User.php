@@ -27,6 +27,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
+        'role',
     ];
 
     /**
@@ -48,6 +50,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_admin' => 'boolean',
     ];
 
     /**
@@ -58,4 +61,52 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    /**
+     * Get the teacher profile associated with the user.
+     */
+    public function teacher()
+    {
+        return $this->hasOne(Teachers::class);
+    }
+
+    /**
+     * Get the parent profile associated with the user.
+     */
+    public function parent()
+    {
+        return $this->hasOne(Parents::class);
+    }
+
+    /**
+     * Get the channels for the user.
+     */
+    public function channels()
+    {
+        return $this->hasMany(Channels::class);
+    }
+
+    /**
+     * Get the user settings for the user.
+     */
+    public function usersettings()
+    {
+        return $this->hasMany(Usersettings::class);
+    }
+
+    /**
+     * Get the school admin records for the user.
+     */
+    public function schoolsadmin()
+    {
+        return $this->hasMany(Schoolsadmin::class);
+    }
+
+    /**
+     * Get the reminder templates created by the user (as admin).
+     */
+    public function remindersTemplates()
+    {
+        return $this->hasMany(RemindersTemplate::class, 'admin_id');
+    }
 }

@@ -12,41 +12,44 @@ class EmergencyContacts extends Model
     protected $table = 'emergency_contacts';
     protected $primaryKey = 'id';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'parent_id',
+        'child_id',
+        'name',
+        'phone_number',
+        'relationship',
+        'picture_path',
+        'email',
+        'address',
+    ];
+
+    /**
+     * The attributes that have default values.
+     *
+     * @var array<string, mixed>
+     */
     protected $attributes = [
         'picture_path' => 'default.png',
     ];
 
     /**
-     *        Schema::create('emergency_contacts', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('parent_id')->constrained(
-                table: 'parents',
-                indexName: 'emergency_contact_parent_id'
-            );
-
-
-            $table->foreignId('child_id')->constrained(
-                table: 'childs',
-                indexName: 'classchild_child_id'
-            );
-            $table->string('name')->nullable(false)->length(255);
-            $table->string('phone_number')->nullable(false)->length(15);
-            $table->string('relationship')->nullable(false)->length(50);
-            $table->string('picture_path')->nullable(false)->length(255);
-            $table->string('email')->nullable(false)->length(255)->unique();
-            //address
-            $table->string('address')->nullable(false)->length(500);
-            $table->timestamps();
-        });
+     * Get the child that the emergency contact belongs to.
      */
-
-    public function childs()
+    public function child()
     {
-        return $this->belongsTo(Childs::class);
+        return $this->belongsTo(Childs::class, 'child_id');
     }
 
-    public function parents()
+    /**
+     * Get the parent that the emergency contact belongs to.
+     */
+    public function parent()
     {
-        return $this->belongsTo(Parents::class);
+        return $this->belongsTo(Parents::class, 'parent_id');
     }
 }

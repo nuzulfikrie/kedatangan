@@ -12,13 +12,32 @@ class Teachers extends Model
     protected $table = 'teachers';
     protected $primaryKey = 'id';
 
-    public function schoolsinstitutions()
-    {
-        return $this->belongsTo(Schoolsinstitutions::class);
-    }
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'teacher_name',
+        'teacher_specialization',
+        'user_id',
+        'school_id',
+        'picture_path',
+    ];
 
-    public function users()
+    /**
+     * Get the user that owns the teacher profile.
+     */
+    public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the school institution that the teacher belongs to.
+     */
+    public function schoolsinstitution()
+    {
+        return $this->belongsTo(Schoolsinstitutions::class, 'school_id');
     }
 }
